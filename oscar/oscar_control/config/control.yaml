@@ -1,0 +1,10 @@
+oscar_joint_publisher:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+oscar_imu_controller:
+  type: imu_sensor_controller/ImuSensorController
+  publish_rate: 50
+
+oscar_ackermann_controller:
+    type: rosmip_control/RosMipControllerLegacy

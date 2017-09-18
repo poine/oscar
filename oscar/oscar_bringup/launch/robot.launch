@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="config" default="oscar_v0"/>
+
+
+  <node name="robot_hardware" pkg="oscar_control" type="oscar_hardware_interface_node" />
+
+  <!-- Load ROSMip's description -->
+  <include file="$(find oscar_description)/launch/description.launch">
+    <arg name="config" value="$(arg config)" />
+  </include>
+  
+  <!-- launch controllers nodes -->  
+  <include file="$(find oscar_control)/launch/control.launch" />
+  
+  <!-- launch teleop node -->
+
+
+</launch>
