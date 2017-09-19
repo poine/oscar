@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<library path="lib/liboscar_ackermann_controller">
+
+  <class name="oscar_control/OscarAckermannController" type="oscar_controller::OscarAckermannController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      The OscarAckermannController runs a toy car. It expects 2 EffortJointInterface type of hardware interfaces.
+    </description>
+  </class>
+
+</library>

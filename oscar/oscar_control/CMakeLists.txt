@@ -124,6 +124,11 @@ include_directories(
 #   src/${PROJECT_NAME}/oscar_control.cpp
 # )
 
+add_library(oscar_ackermann_controller
+  src/oscar_ackermann_controller.cpp
+  src/input_manager.cpp
+)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -133,7 +138,9 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/oscar_control_node.cpp)
-add_executable(oscar_hardware_interface_node src/oscar_hardware_interface.cpp)
+add_executable(oscar_hardware_interface_node
+  src/oscar_hardware_interface.cpp
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -149,6 +156,9 @@ add_executable(oscar_hardware_interface_node src/oscar_hardware_interface.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(oscar_ackermann_controller
+  ${catkin_LIBRARIES} roboticscape 
+  )
 
 target_link_libraries(oscar_hardware_interface_node
   ${catkin_LIBRARIES} roboticscape 
@@ -183,11 +193,12 @@ target_link_libraries(oscar_hardware_interface_node
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(FILES
+  oscar_ackerman_controller_plugin.xml
+  #   # myfile1
+  #   # myfile2
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##

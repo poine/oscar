@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
   
+  <xacro:property name="PI" value="3.1415926535897931" />
+
+  <!-- Body -->
+  <link name="base_link"></link>
 
   
   <!-- Bring in simulation data for Gazebo. -->

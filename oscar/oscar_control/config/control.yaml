@@ -7,4 +7,4 @@ oscar_imu_controller:
   publish_rate: 50
 
 oscar_ackermann_controller:
-    type: rosmip_control/RosMipControllerLegacy
+    type: oscar_control/OscarAckermannController

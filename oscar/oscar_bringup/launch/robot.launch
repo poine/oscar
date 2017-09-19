@@ -6,7 +6,7 @@
 
   <node name="robot_hardware" pkg="oscar_control" type="oscar_hardware_interface_node" />
 
-  <!-- Load ROSMip's description -->
+  <!-- Load Oscar's description -->
   <include file="$(find oscar_description)/launch/description.launch">
     <arg name="config" value="$(arg config)" />
   </include>
