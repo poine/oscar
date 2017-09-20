@@ -14,6 +14,8 @@
 
 #include "oscar_control/oscar_hardware_interface.h"
 #include "oscar_control/input_manager.h"
+#include "oscar_control/odometry.h"
+#include "oscar_control/publisher.h"
 
 namespace oscar_controller {
 
@@ -38,9 +40,15 @@ namespace oscar_controller {
       // we keep a pointer on it for non standard stuff like radio control and motors on/off
       // that sucks... FIXME
       OscarHardwareInterface* hw_;
+      oscar_controller::InputManager   input_manager_;
+      oscar_controller::Odometry       odometry_;
+      oscar_controller::Publisher      publisher_;
 
-      InputManager   input_manager_;
- 
+      double left_wheel_duty, right_wheel_duty, steering_angle;
+      
+      void compute_control(const ros::Time& now);
+
+      
     };
 }
 

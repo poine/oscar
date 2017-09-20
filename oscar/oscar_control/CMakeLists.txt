@@ -127,6 +127,8 @@ include_directories(
 add_library(oscar_ackermann_controller
   src/oscar_ackermann_controller.cpp
   src/input_manager.cpp
+  src/odometry.cpp
+  src/publisher.cpp
 )
 
 ## Add cmake target dependencies of the library
