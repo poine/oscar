@@ -12,7 +12,7 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 #define WHEEL_RADIUS_M                  0.03
 // Electrical hookups
 #define STEERING_SERVO_CH               1
-#define STEERING_SERVO_NEUTRAL          0.
+#define STEERING_SERVO_NEUTRAL          0.1
 #define STEERING_SERVO_POLARITY        -1
 #define MOTOR_CHANNEL_L                 1
 #define MOTOR_CHANNEL_R                 2
