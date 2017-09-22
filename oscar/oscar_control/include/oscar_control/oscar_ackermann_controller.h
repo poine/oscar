@@ -44,7 +44,7 @@ namespace oscar_controller {
       oscar_controller::Odometry       odometry_;
       oscar_controller::Publisher      publisher_;
 
-      double left_wheel_duty, right_wheel_duty, steering_angle;
+      double left_wheel_duty_, right_wheel_duty_, steering_angle_;
       
       void compute_control(const ros::Time& now);
 
