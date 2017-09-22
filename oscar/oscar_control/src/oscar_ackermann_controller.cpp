@@ -1,8 +1,11 @@
 #include <oscar_control/oscar_ackermann_controller.h>
 
-//#define DISABLE_MOTORS
+// Directly transmit setpoints to the hardware interface (for calibration)
+//#define BYPASS_CONTROL
+
 namespace oscar_controller {
 
+  
 #define __NAME "oscar_ackermann_controller"
 #define WHEEL_BASE   0.1
 #define WHEEL_RADIUS 0.03
@@ -52,7 +55,7 @@ namespace oscar_controller {
     odometry_.update(left_wheel_joint_.getVelocity(), right_wheel_joint_.getVelocity(), steering_joint_.getPosition(), now);
 
     
-#if 0    
+#ifdef BYPASS_CONTROL
     left_wheel_joint_.setCommand(input_manager_.rt_commands_.lin);
     right_wheel_joint_.setCommand(input_manager_.rt_commands_.lin);
     steering_joint_.setCommand(input_manager_.rt_commands_.ang);
@@ -89,8 +92,8 @@ namespace oscar_controller {
       virtual_steering_angle = std::atan(input_manager_.rt_commands_.ang/input_manager_.rt_commands_.lin* GEOM_L);
 					 
     steering_angle_ = virtual_steering_angle; // mechanics is supposedly doing the trick...
-    double wheels_rvel = input_manager_.rt_commands_.lin/WHEEL_RADIUS;
 
+    double wheels_rvel = input_manager_.rt_commands_.lin/WHEEL_RADIUS;
     double dv = input_manager_.rt_commands_.ang*GEOM_D/2;
     double left_wheel_rvel  = ( input_manager_.rt_commands_.lin - dv ) / WHEEL_RADIUS;
     double right_wheel_rvel = ( input_manager_.rt_commands_.lin + dv ) / WHEEL_RADIUS;
