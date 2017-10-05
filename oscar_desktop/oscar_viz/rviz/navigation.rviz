@@ -6,10 +6,11 @@ Panels:
       Expanded:
         - /Global Options1
         - /TF1/Frames1
+        - /move base1/Map1/Status1
         - /Odometry1/Shape1
-        - /PurePursuit1
+        - /Edited path1
       Splitter Ratio: 0.5
-    Tree Height: 668
+    Tree Height: 516
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -17,6 +18,8 @@ Panels:
       - /2D Nav Goal1
     Name: Tool Properties
     Splitter Ratio: 0.588679016
+  - Class: rviz/Help
+    Name: Help
 Visualization Manager:
   Class: ""
   Displays:
@@ -60,38 +63,19 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        base_link:
-          Value: true
-        camera_link:
-          Value: false
-        camera_optical_frame:
-          Value: false
-        map:
-          Value: false
-        odom:
-          Value: true
-        world:
-          Value: true
       Marker Scale: 0.5
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        world:
-          camera_link:
-            camera_optical_frame:
-              {}
-          map:
-            odom:
-              base_link:
-                {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Class: rviz/Group
       Displays:
         - Alpha: 1
@@ -99,7 +83,7 @@ Visualization Manager:
           Axes Radius: 0.100000001
           Class: rviz/Pose
           Color: 25; 128; 0
-          Enabled: true
+          Enabled: false
           Head Length: 0.0500000007
           Head Radius: 0.0500000007
           Name: goal
@@ -108,12 +92,12 @@ Visualization Manager:
           Shape: Arrow
           Topic: /move_base/current_goal
           Unreliable: false
-          Value: true
+          Value: false
         - Alpha: 1
           Buffer Length: 1
           Class: rviz/Path
           Color: 25; 25; 255
-          Enabled: true
+          Enabled: false
           Head Diameter: 0.300000012
           Head Length: 0.200000003
           Length: 0.300000012
@@ -131,12 +115,12 @@ Visualization Manager:
           Shaft Length: 0.100000001
           Topic: /move_base/TrajectoryPlannerROS/global_plan
           Unreliable: false
-          Value: true
+          Value: false
         - Alpha: 1
           Buffer Length: 1
           Class: rviz/Path
           Color: 25; 255; 0
-          Enabled: true
+          Enabled: false
           Head Diameter: 0.300000012
           Head Length: 0.200000003
           Length: 0.300000012
@@ -154,15 +138,15 @@ Visualization Manager:
           Shaft Length: 0.100000001
           Topic: /move_base/TrajectoryPlannerROS/local_plan
           Unreliable: false
-          Value: true
+          Value: false
         - Alpha: 1
           Class: rviz/Polygon
           Color: 25; 255; 0
-          Enabled: true
+          Enabled: false
           Name: local footprint
           Topic: /move_base/local_costmap/footprint
           Unreliable: false
-          Value: true
+          Value: false
         - Alpha: 0.699999988
           Class: rviz/Map
           Color Scheme: map
@@ -193,7 +177,7 @@ Visualization Manager:
           Unreliable: false
           Use Timestamp: false
           Value: false
-      Enabled: false
+      Enabled: true
       Name: move base
     - Angle Tolerance: 0.00999999978
       Class: rviz/Odometry
@@ -213,7 +197,7 @@ Visualization Manager:
           Value: true
         Value: false
       Enabled: false
-      Keep: 3000
+      Keep: 5000
       Name: Odometry
       Position Tolerance: 0.00100000005
       Shape:
@@ -221,10 +205,10 @@ Visualization Manager:
         Axes Length: 0.100000001
         Axes Radius: 0.00999999978
         Color: 255; 25; 0
-        Head Length: 0.00999999978
-        Head Radius: 0.0199999996
-        Shaft Length: 0.100000001
-        Shaft Radius: 0.00999999978
+        Head Length: 0.00499999989
+        Head Radius: 0.00999999978
+        Shaft Length: 0.0500000007
+        Shaft Radius: 0.00499999989
         Value: Arrow
       Topic: /oscar_ackermann_controller/odom
       Unreliable: false
@@ -446,6 +430,29 @@ Visualization Manager:
           Value: true
       Enabled: true
       Name: PurePursuit
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Head Diameter: 0.300000012
+      Head Length: 0.200000003
+      Length: 0.0199999996
+      Line Style: Lines
+      Line Width: 0.0299999993
+      Name: Edited path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: Axes
+      Radius: 0.00999999978
+      Shaft Diameter: 0.100000001
+      Shaft Length: 0.100000001
+      Topic: /edit_path/path
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -455,21 +462,21 @@ Visualization Manager:
   Tools:
     - Class: rviz/MoveCamera
     - Class: rviz/SetGoal
-      Topic: /move_base_simple/goal
+      Topic: /edit_path/goal
   Value: true
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 7.61451149
+      Distance: 2.99427891
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.707598448
-        Y: 0.403457701
-        Z: -1.21748126
+        X: 0.382311791
+        Y: 0.892214656
+        Z: -1.12466991
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
@@ -478,17 +485,19 @@ Visualization Manager:
       Pitch: 1.56979632
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.14538574
+      Yaw: 3.14538717
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
   Height: 1547
+  Help:
+    collapsed: false
   Hide Left Dock: false
   Hide Right Dock: false
   Image:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001ee000005a8fc0200000006fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006600fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073020000087b000004fd00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000000430000034e000000df00fffffffb0000000a0049006d0061006700650100000397000002540000001800ffffff000000010000010f0000023cfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007301000000280000023c0000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a00000000000000000fb0000000800540069006d006501000000000000045000000000000000000000080c000005a800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001ee000005a8fc0200000007fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006600fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073020000087b000004fd00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000043000002b6000000df00fffffffb0000000a0049006d00610067006501000002ff000002ec0000001800fffffffb0000000800480065006c00700000000523000000c80000007800ffffff000000010000010f0000023cfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007301000000280000023c0000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a00000000000000000fb0000000800540069006d006501000000000000045000000000000000000000080c000005a800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Tool Properties:

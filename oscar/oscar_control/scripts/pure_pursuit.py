@@ -5,16 +5,23 @@ import tf.transformations
 import matplotlib, matplotlib.pyplot as plt
 import scipy.stats
 
-import utils
+import utils, path
 
 import pdb
 
 
 
 class Path:
-    
+
+    def __init__(self):
+        self.last_passed_idx = 0 # we don't allow going back
+
+    def reset(self):
+        self.last_passed_idx = 0
+        
     def find_closest(self, p0):
-        i = np.argmin(np.linalg.norm(p0 - self.points, axis=1))
+        i = np.argmin(np.linalg.norm(p0 - self.points[self.last_passed_idx:], axis=1)) + self.last_passed_idx
+        self.last_passed_idx = i
         return i, self.points[i]
 
     def find_carrot(self, i, p1, _d=0.2):
@@ -54,7 +61,20 @@ class CirclePath(Path):
 
 class OvalPath(Path):
     pass
-        
+
+
+class FilePath(Path):
+    def __init__(self, filename):
+        Path.__init__(self)
+        data = np.load(filename)
+        points = []
+        for p,y in data['path']:
+            print p, y
+            points.append(p)
+        self.points = np.array(points)
+        self.dists = np.zeros(len(self.points))
+        for i, p in enumerate(self.points[1:]):
+            self.dists[i+1] = self.dists[i] + np.linalg.norm(self.points[i+1]-self.points[i])
 
 def make_cw_rectangle():
     return  [ LinePath((0.4, 0.2),(0.4, 1.8)),
@@ -194,6 +214,7 @@ class PurePursuit:
         while not rospy.is_shutdown():
             if not self.compute(paths[path_idx], v):
                 path_idx = (path_idx+1)%len(paths)
+                paths[path_idx].reset()
                 self.compute(paths[path_idx], v)
             self.publish_twist()
             self.publish_curpath(paths[path_idx])
@@ -204,10 +225,11 @@ class PurePursuit:
 
 def main(args):
   rospy.init_node('calibrate_ackermann')
-  PurePursuit().run(make_cw_rectangle(), v=0.5)
+  #PurePursuit().run(make_cw_rectangle(), v=0.5)
   #PurePursuit().run(make_oval(), v=0.9)
   #PurePursuit().run(make_height(), v=0.2)
-
+  #PurePursuit().run([FilePath('/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_1.npz')], v=0.1)
+  PurePursuit().run([path.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_2.npz')], v=0.3)
 
 if __name__ == '__main__':
     main(sys.argv)
