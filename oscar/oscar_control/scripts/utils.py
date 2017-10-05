@@ -1,5 +1,5 @@
 
-import math, numpy as np, rospy, geometry_msgs.msg
+import math, numpy as np, rospy, geometry_msgs.msg, tf
 
 
 def list_of_xyz(p): return [p.x, p.y, p.z]
@@ -24,3 +24,8 @@ class SmocapListener:
             self.vel = np.linalg.norm((p2-p1)/dt)
         self.pose = msg.pose.pose
         self.ts = msg.header.stamp.to_sec()
+
+    def get_loc_and_yaw(self):
+        l = array_of_xyz(self.pose.position)[:2]
+        y = tf.transformations.euler_from_quaternion(list_of_xyzw(self.pose.orientation))[2]
+        return l, y

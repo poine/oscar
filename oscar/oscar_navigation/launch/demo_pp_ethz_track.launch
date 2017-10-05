@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!--  ****** Maps *****  -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find rosmip_worlds)/maps/track_ethz.yaml" output="screen">
+    <param name="frame_id" value="/map"/>
+  </node>
+
+</launch>
