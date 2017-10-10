@@ -1,0 +1,22 @@
+global_frame: /map
+robot_base_frame: /base_footprint
+transform_tolerance: 0.1
+
+footprint: [ [-0.01,-0.045], [0.1,-0.045], [0.1,0.045], [-0.01,0.045] ]
+
+map_type: costmap
+
+plugins:
+  - {name: static, type: "costmap_2d::StaticLayer"}
+  - {name: inflation, type: "costmap_2d::InflationLayer"}
+
+
+inflation:
+  enabled:              true
+  cost_scaling_factor:  10.0  # exponential rate at which the obstacle cost drops off (default: 10)
+  inflation_radius:     0.065 # max. distance from an obstacle at which costs are incurred for planning paths.
+
+static:
+  enabled:              true
+  lethal_cost_threshold: 100
+  map_topic:            "/map"
