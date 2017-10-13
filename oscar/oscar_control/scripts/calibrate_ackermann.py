@@ -5,6 +5,8 @@ import tf.transformations
 import matplotlib, matplotlib.pyplot as plt
 import scipy.stats
 
+import utils
+
 import pdb
 
 def list_of_xyz(p): return [p.x, p.y, p.z]
@@ -34,38 +36,39 @@ def decorate(ax, title=None, xlab=None, ylab=None, legend=None, xlim=None, ylim=
 
 
 
-class SmocapListener:
-    def __init__(self):
-        rospy.Subscriber('/smocap/est_world', geometry_msgs.msg.PoseWithCovarianceStamped, self.smocap_cbk)
-        self.ts = None
-        self.pose = None
-        self.vel = None
+# class SmocapListener:
+#     def __init__(self):
+#         rospy.Subscriber('/smocap/est_world', geometry_msgs.msg.PoseWithCovarianceStamped, self.smocap_cbk)
+#         self.ts = None
+#         self.pose = None
+#         self.vel = None
         
-    def smocap_cbk(self, msg):
-        if self.pose is not None:
-            p1 = array_of_xyz(self.pose.position)
-            p2 = array_of_xyz(msg.pose.pose.position)
-            dt = msg.header.stamp.to_sec() - self.ts
-            self.vel = np.linalg.norm((p2-p1)/dt)
-        self.pose = msg.pose.pose
-        self.ts = msg.header.stamp.to_sec()
+#     def smocap_cbk(self, msg):
+#         if self.pose is not None:
+#             p1 = array_of_xyz(self.pose.position)
+#             p2 = array_of_xyz(msg.pose.pose.position)
+#             dt = msg.header.stamp.to_sec() - self.ts
+#             self.vel = np.linalg.norm((p2-p1)/dt)
+#         self.pose = msg.pose.pose
+#         self.ts = msg.header.stamp.to_sec()
 
-    def inside_zone(self):
-        
-
-        return True
-        
+   
         
 class OdomListener:
     def __init__(self):
         rospy.Subscriber('/oscar_ackermann_controller/odom', nav_msgs.msg.Odometry, self.odom_cbk)
         self.vel = None
+        self.pose = None
+        
         
     def odom_cbk(self, msg):
         self.vel = np.linalg.norm(array_of_xyz(msg.twist.twist.linear))
+        self.pose = msg.pose.pose
 
-
-
+    def get_loc_and_yaw(self):
+        l = array_of_xyz(self.pose.position)[:2]
+        y = tf.transformations.euler_from_quaternion(list_of_xyzw(self.pose.orientation))[2]
+        return l, y
 
         
 
@@ -81,7 +84,7 @@ class CalibNode:
         twist_cmd_topic = '/oscar_ackermann_controller/cmd_vel'
         self.pub_twist = rospy.Publisher(twist_cmd_topic, geometry_msgs.msg.Twist, queue_size=1)
 
-        self.smocap_listener = SmocapListener()
+        self.smocap_listener = utils.SmocapListener()
         self.odom_listener = OdomListener()
         
             
@@ -191,6 +194,9 @@ class VelCalib(CalibNode):
 
 
 
+#def norm_angle(a):
+    
+
 
 
 class SteeringCalib(CalibNode):
@@ -224,12 +230,82 @@ class SteeringCalib(CalibNode):
         decorate(plt.gca(), title='steering', xlab='x', ylab='y')
         plt.gca().set_aspect('equal')
         plt.show()
-        
 
+
+def norm_yaw(y):
+    while y > math.pi:
+        y -= 2*math.pi
+    while y < -math.pi:
+        y += 2*math.pi
+    return y
+
+def norm_yaw_array(a):
+    return np.array([norm_yaw(y) for y in a])
+        
+class OdomCalib(CalibNode):
+
+    def run(self, v= 0.15, R=0.5, save_path='/tmp/calib_odom', load_path=None):
+        self.rate = rospy.Rate(50.)
+        
+        alpha = math.atan(v/R)
+        print('commanding v {} m/s R {} m (alpha {:.2f} rad {:.1f} deg)'.format(v, R, alpha, deg_of_rad(alpha)))
+        loops, n_iter= 0, 400
+        meas_smocap_loc, meas_smocap_ori = [], []
+        meas_odom_loc, meas_odom_ori = [], []
+        if save_path is not None:
+            while not rospy.is_shutdown() and loops < n_iter:
+                self.alpha, self.v = alpha, v
+                self.publish_twist()
+                if self.smocap_listener.pose is not None:
+                    l, y = self.smocap_listener.get_loc_and_yaw()
+                    meas_smocap_loc.append(l)
+                    meas_smocap_ori.append(y)
+                if self.odom_listener.pose is not None:    
+                    l, y = self.odom_listener.get_loc_and_yaw()
+                    meas_odom_loc.append(l)
+                    meas_odom_ori.append(y)
+                loops += 1
+                self.rate.sleep()
+            np.savez(save_path, meas_smocap_loc=meas_smocap_loc, meas_smocap_ori=meas_smocap_ori,
+                     meas_odom_loc=meas_odom_loc, meas_odom_ori=meas_odom_ori)
+            meas_odom_ori = np.array(meas_odom_ori)
+            meas_smocap_ori = np.array(meas_smocap_ori)
+            
+        if load_path is not None:
+            print 'reading ', load_path
+            data = np.load(load_path)
+            meas_smocap_loc, meas_odom_loc = data['meas_smocap_loc'],  data['meas_odom_loc']
+            meas_smocap_ori, meas_odom_ori = data['meas_smocap_ori'],  data['meas_odom_ori']
+
+        r_ow = meas_odom_ori[0] - meas_smocap_ori[0]
+        ce, se = math.cos(r_ow), math.sin(r_ow)
+        R_ow = np.array([[ce, se], [-se, ce]])
+        t_ow =  meas_smocap_loc[0] -  np.dot(R_ow, meas_odom_loc[0])
+
+        odom_loc_world = np.array([np.dot(R_ow, _o) for _o in meas_odom_loc]) + t_ow
+        odom_yaw_world = norm_yaw_array(np.array(meas_odom_ori)-r_ow)
+        
+        #pdb.set_trace()
+        
+        plt.subplot(2,1,1)
+        plt.plot( np.array(meas_smocap_loc))
+        plt.plot( odom_loc_world )
+        plt.legend(['x_s', 'y_s', 'x_o', 'y_o'])
+        plt.title('pos world')
+        plt.subplot(2,1,2)
+        plt.plot( np.array(meas_smocap_ori))
+        plt.plot(  odom_yaw_world )
+        plt.legend(['cap smocap', 'cap odom'])
+        plt.show()
+
+             
+             
 def main(args):
   rospy.init_node('calibrate_ackermann')
-  VelCalib().run()#save_path=None, load_path='/tmp/calib_vel1.npz')
+  #VelCalib().run()#save_path=None, load_path='/tmp/calib_vel1.npz')
   #SteeringCalib().run()#save_path=None, load_path='/tmp/calib_steering.npz')
+  OdomCalib().run(R=1e4)# save_path=None, load_path='/tmp/calib_odom.npz')
 
+   
 if __name__ == '__main__':
     main(sys.argv)

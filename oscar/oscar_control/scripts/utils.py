@@ -29,3 +29,31 @@ class SmocapListener:
         l = array_of_xyz(self.pose.position)[:2]
         y = tf.transformations.euler_from_quaternion(list_of_xyzw(self.pose.orientation))[2]
         return l, y
+
+
+
+class LinRef:
+    ''' Linear Reference Model (with first order integration)'''
+    def __init__(self, K):
+        '''K: coefficients of the caracteristic polynomial, in ascending powers order,
+              highesr order ommited (normalized to -1)'''
+        self.K = K; self.order = len(K)
+        self.X = np.zeros(self.order+1)
+
+    def run(self, dt, sp):
+        self.X[:self.order] += self.X[1:self.order+1]*dt
+        e =  np.array(self.X[:self.order]); e[0] -= sp
+        self.X[self.order] = np.sum(e*self.K)
+        return self.X
+
+    def poles(self):
+        return np.roots(np.insert(np.array(self.coefs[::-1]), 0, -1))
+
+
+class FirstOrdLinRef(LinRef):
+    def __init__(self, tau):
+        LinRef.__init__(self, [-1/tau])
+
+class SecOrdLinRef(LinRef):
+    def __init__(self, omega, xi):
+        LinRef.__init__(self, [-omega**2, -2*xi*omega])

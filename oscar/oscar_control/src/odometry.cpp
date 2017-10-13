@@ -114,35 +114,35 @@ void Odometry::setVelocityRollingWindowSize(size_t velocity_rolling_window_size)
     resetAccumulators();
 }
 
-void Odometry::integrateRungeKutta2(double linear, double angular)
-{
-    const double direction = heading_ + angular * 0.5;
+// void Odometry::integrateRungeKutta2(double linear, double angular)
+// {
+//     const double direction = heading_ + angular * 0.5;
 
-    /// Runge-Kutta 2nd order integration:
-    x_       += linear * cos(direction);
-    y_       += linear * sin(direction);
-    heading_ += angular;
-}
+//     /// Runge-Kutta 2nd order integration:
+//     x_       += linear * cos(direction);
+//     y_       += linear * sin(direction);
+//     heading_ += angular;
+// }
 
-/**
-* \brief Other possible integration method provided by the class
-* \param linear linear speed
-* \param angular angular speed
-*/
-void Odometry::integrateExact(double linear, double angular)
-{
-    if (fabs(angular) < 1e-6)
-        integrateRungeKutta2(linear, angular);
-    else
-    {
-        /// Exact integration (should solve problems when angular is zero):
-        const double heading_old = heading_;
-        const double r = linear/angular;
-        heading_ += angular;
-        x_       +=  r * (sin(heading_) - sin(heading_old));
-        y_       += -r * (cos(heading_) - cos(heading_old));
-    }
-}
+// /**
+// * \brief Other possible integration method provided by the class
+// * \param linear linear speed
+// * \param angular angular speed
+// */
+// void Odometry::integrateExact(double linear, double angular)
+// {
+//     if (fabs(angular) < 1e-6)
+//         integrateRungeKutta2(linear, angular);
+//     else
+//     {
+//         /// Exact integration (should solve problems when angular is zero):
+//         const double heading_old = heading_;
+//         const double r = linear/angular;
+//         heading_ += angular;
+//         x_       +=  r * (sin(heading_) - sin(heading_old));
+//         y_       += -r * (cos(heading_) - cos(heading_old));
+//     }
+// }
 
 void Odometry::resetAccumulators()
 {
