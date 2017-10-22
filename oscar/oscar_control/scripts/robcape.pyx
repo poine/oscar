@@ -23,9 +23,15 @@ cdef extern from "roboticscape.h":
     int rc_enable_motors()
     int rc_set_motor(int motor, float duty)
 
+    int rc_get_encoder_pos(int ch)
+    int rc_set_encoder_pos(int ch, int value)
+    
 def initialize(): return rc_initialize()
 def cleanup(): return rc_cleanup()
 def get_state(): return rc_get_state()
 
 def enable_motors(): return rc_enable_motors()
 def set_motor(motor, duty): return rc_set_motor(motor, duty)
+
+def get_encoder_pos(ch): return rc_get_encoder_pos(ch)
+def set_encoder_pos(ch, value): return rc_set_encoder_pos(ch, value)
