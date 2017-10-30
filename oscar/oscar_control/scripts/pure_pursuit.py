@@ -10,9 +10,19 @@ import utils, guidance
 import pdb
 
 
-        
+
 class PurePursuit:
-    def __init__(self, twist_cmd_topic = '/oscar_ackermann_controller/cmd_vel'):
+    def __init__(self, path_file):
+        self.path = guidance.Path(load=path_file)
+
+        
+class PurePursuitNode:
+    def __init__(self):
+        twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/oscar_ackermann_controller/cmd_vel')
+        path_file = rospy.get_param('~path_file', '/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')
+
+        self.controller = PurePursuit(path_file)
+        
         self.dt = 1./60.
         self.l = 0.1                  # wheelbase
         self.pub_twist = rospy.Publisher(twist_cmd_topic, geometry_msgs.msg.Twist, queue_size=1)
@@ -22,6 +32,9 @@ class PurePursuit:
         self.pub_arc = rospy.Publisher('pure_pursuit/arc', nav_msgs.msg.Path, queue_size=1)
         self.smocap_listener = utils.SmocapListener()
         self.vel_ref = utils.FirstOrdLinRef(0.75)
+        rospy.loginfo(' using twist cmd topic: {}'.format(twist_cmd_topic))
+        
+
         
     def publish_curpath(self, _path):
         path_msg = nav_msgs.msg.Path()
@@ -141,7 +154,9 @@ def main(args):
   #PurePursuit().run(make_height(), v=0.2)
   #PurePursuit().run([FilePath('/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_1.npz')], v=0.1)
   #PurePursuit().run([path.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_2.npz')], v=0.3)
-  PurePursuit(twist_cmd_topic='/rosmip_balance_controller/cmd_vel').run([guidance.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')], v_sp=0.6, adp_vel=False)
+
+  #PurePursuit(twist_cmd_topic='/rosmip_balance_controller/cmd_vel').run([guidance.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')], v_sp=0.6, adp_vel=False)
+  PurePursuitNode().run([guidance.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')], v_sp=0.25, adp_vel=False)
 
 if __name__ == '__main__':
     main(sys.argv)

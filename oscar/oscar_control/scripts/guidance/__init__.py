@@ -22,8 +22,12 @@ class Map:
             self.free_thresh = _yaml['free_thresh']
             #pdb.set_trace()
 
+    # pixel of world
     def of_world(self, p_w): return [1, -1]*(p_w - self.origin[:2])/self.resolution + [0, self.height]
 
+    # world of pixel
+    #def pixel_to_world(self, p_m): return [1, -1]*((p_m - np.array([0, self.height]))*self.resolution) + self.origin[:2]
+    def world_of_pixel(self, p_m): return np.array([p_m[0], self.height-p_m[1], 0])*self.resolution +  self.origin
 
 
 

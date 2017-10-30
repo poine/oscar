@@ -1,12 +1,24 @@
 <?xml version="1.0"?>
 <launch>
 
+  <arg name="map" default="$(find rosmip_worlds)/maps/track_ethz_2.yaml" />
+  
   <!--  ****** Maps *****  -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find rosmip_worlds)/maps/track_ethz_2.yaml" output="screen">
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
     <param name="frame_id" value="/map"/>
   </node>
 
-  <node pkg="tf" type="static_transform_publisher" name="world_to_map_publisher"
+  <!--  ****** Navigation Filter *****  -->
+  <include file="$(find oscar_navigation)/launch/robot_localization_ekf.launch"/>
+  
+  
+  <!--  ****** Pure Pursuit controller *****  -->
+  <node name="pure_pursuit" pkg="oscar_control" type="pure_pursuit.py">
+    <param name="twist_cmd_topic" value="oscar_ackermann_controller/cmd_vel"/>
+  </node>
+
+  <!--  ****** World to map transform publisher *****  -->
+  <node name="world_to_map_publisher" pkg="tf" type="static_transform_publisher"
         args="0 0 0 0 0 0 world map 100"/>
   
 </launch>
