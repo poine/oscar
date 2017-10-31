@@ -50,6 +50,7 @@ class Path:
         np.savez(filename, points=self.points, headings=self.headings, dists=self.dists)
 
     def reset(self):
+        print 'reset'
         self.last_passed_idx = 0
         
     def compute_headings(self):  # TEST ME
@@ -106,8 +107,8 @@ class Path:
         self.insert_point(len(self.points), p, y)
         
     
-    def find_closest(self, p0):
-        i = np.argmin(np.linalg.norm(p0 - self.points[self.last_passed_idx:], axis=1)) + self.last_passed_idx
+    def find_closest(self, p0, max_look_ahead=100):
+        i = np.argmin(np.linalg.norm(p0 - self.points[self.last_passed_idx:self.last_passed_idx+max_look_ahead], axis=1)) + self.last_passed_idx
         self.last_passed_idx = i
         return i, self.points[i]
 

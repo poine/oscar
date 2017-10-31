@@ -112,7 +112,9 @@ class PurePursuitNode:
         p0, psi = self.smocap_listener.get_loc_and_yaw()
         # find closest point and carrot on path
         p1, p2, end_reached, ip1, ip2 = _path.find_carrot_alt(p0)
-        if end_reached: return False
+        if end_reached:
+            print 'end_reached'
+            return False
             
         self.goal = p2
         p0p2_w = p2 - p0
@@ -156,7 +158,7 @@ def main(args):
   #PurePursuit().run([path.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_2.npz')], v=0.3)
 
   #PurePursuit(twist_cmd_topic='/rosmip_balance_controller/cmd_vel').run([guidance.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')], v_sp=0.6, adp_vel=False)
-  PurePursuitNode().run([guidance.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')], v_sp=0.25, adp_vel=False)
+  PurePursuitNode().run([guidance.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_3_1.npz')], v_sp=0.25, adp_vel=False)
 
 if __name__ == '__main__':
     main(sys.argv)
