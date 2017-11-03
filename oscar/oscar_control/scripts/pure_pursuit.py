@@ -11,17 +11,21 @@ import pdb
 
 
 
-class PurePursuit:
-    def __init__(self, path_file):
-        self.path = guidance.Path(load=path_file)
+# class PurePursuit:
+#     def __init__(self, path_file):
+#         self.path = guidance.Path(load=path_file)
 
         
 class PurePursuitNode:
     def __init__(self):
         twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/oscar_ackermann_controller/cmd_vel')
-        path_file = rospy.get_param('~path_file', '/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')
-
-        self.controller = PurePursuit(path_file)
+        path_filename = rospy.get_param('~path_filename', '/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')
+        self.vel_setpoint = rospy.get_param('~vel_setpoint', '0.4')
+        self.vel_adaptive = rospy.get_param('~vel_adaptive', 'false')
+        self.look_ahead = rospy.get_param('~look_ahead', '0.25')
+        
+        self.paths = [guidance.Path(load=path_filename)]
+        #self.controller = PurePursuit(path_filename)
         
         self.dt = 1./60.
         self.l = 0.1                  # wheelbase
@@ -102,7 +106,7 @@ class PurePursuitNode:
 
 
 
-    def compute(self, _path, v_sp, adp_vel):
+    def compute(self, _path, look_ahead, v_sp, adp_vel):
         if self.smocap_listener.pose is None:
             self.goal = (1, 1)
             self.R = float('inf')
@@ -111,7 +115,7 @@ class PurePursuitNode:
         # get current pose
         p0, psi = self.smocap_listener.get_loc_and_yaw()
         # find closest point and carrot on path
-        p1, p2, end_reached, ip1, ip2 = _path.find_carrot_alt(p0)
+        p1, p2, end_reached, ip1, ip2 = _path.find_carrot_alt(p0, _d=look_ahead)
         if end_reached:
             print 'end_reached'
             return False
@@ -133,32 +137,26 @@ class PurePursuitNode:
         self.v = self.vel_ref.run(self.dt, v_sp)[0]
         return True
         
-    def run(self, paths, v_sp=0.2, adp_vel=True):
+    def run(self):
         self.rate = rospy.Rate(1./self.dt)
 
         path_idx = 0
         while not rospy.is_shutdown():
-            if not self.compute(paths[path_idx], v_sp, adp_vel):
-                path_idx = (path_idx+1)%len(paths)
-                paths[path_idx].reset()
-                self.compute(paths[path_idx], v_sp, adp_vel)
+            if not self.compute(self.paths[path_idx], self.look_ahead, self.vel_setpoint, self.vel_adaptive):
+                path_idx = (path_idx+1)%len(self.paths)
+                self.paths[path_idx].reset()
+                self.compute(self.paths[path_idx], self.look_ahead, self.vel_setpoint, self.vel_adaptive)
             self.publish_twist()
-            self.publish_curpath(paths[path_idx])
-            self.publish_path(paths)
+            self.publish_curpath(self.paths[path_idx])
+            self.publish_path(self.paths)
             self.publish_goal()
             self.rate.sleep()
         
 
 def main(args):
   rospy.init_node('pure_pursuit')
-  #PurePursuit().run(make_cw_rectangle(), v=0.5)
-  #PurePursuit().run(make_oval(), v=0.9)
-  #PurePursuit().run(make_height(), v=0.2)
-  #PurePursuit().run([FilePath('/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_1.npz')], v=0.1)
-  #PurePursuit().run([path.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_2.npz')], v=0.3)
-
   #PurePursuit(twist_cmd_topic='/rosmip_balance_controller/cmd_vel').run([guidance.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')], v_sp=0.6, adp_vel=False)
-  PurePursuitNode().run([guidance.Path(load='/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_3_1.npz')], v_sp=0.25, adp_vel=False)
+  PurePursuitNode().run()
 
 if __name__ == '__main__':
     main(sys.argv)

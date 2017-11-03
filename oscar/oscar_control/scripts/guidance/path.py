@@ -98,15 +98,21 @@ class Path:
         if i > 0:
             self.dists[i] = self.dists[i-1] + np.linalg.norm(self.points[i]-self.points[i-1])
 
-    def insert_point(self, i, p, y):
+    def insert_points(self, i, p, y, d=None):
         self.points = np.insert(self.points, i, p, axis=0)
         self.headings = np.insert(self.headings, i, y)
-        self.dists = np.insert(self.dists, i, np.linalg.norm(self.points[i]-self.points[i-1]))
+        if d is None: # compute straight line distances
+            d = np.insert(np.cumsum(np.linalg.norm(np.diff(p, axis=0), axis=1)), [0], 0)
+        self.dists = np.insert(self.dists, i, (self.dists[-1] if len(self.dists) else 0) + d)
 
-    def append_points(self, p, y):
-        self.insert_point(len(self.points), p, y)
+    def append_points(self, p, y, d=None):
+        self.insert_points(len(self.points), p, y, d)
         
-    
+    def append(self, others):
+        for other in others:
+            self.append_points(other.points, other.headings, other.dists)
+        
+        
     def find_closest(self, p0, max_look_ahead=100):
         i = np.argmin(np.linalg.norm(p0 - self.points[self.last_passed_idx:self.last_passed_idx+max_look_ahead], axis=1)) + self.last_passed_idx
         self.last_passed_idx = i
