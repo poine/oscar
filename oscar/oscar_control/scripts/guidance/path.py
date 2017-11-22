@@ -131,3 +131,5 @@ class Path:
         return p1, p2, end_reached, i, j
 
 
+    def find_entry_point(self, p0):
+        return 

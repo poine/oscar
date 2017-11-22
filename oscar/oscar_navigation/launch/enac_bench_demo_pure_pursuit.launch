@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="map" default="$(find rosmip_worlds)/maps/track_ethz_dual.yaml" />
-  <arg name="path_filename" default="$(find oscar_control)/paths/track_ethz_dual_01.npz" />
+  <arg name="map" default="$(find rosmip_worlds)/maps/enac_bench/track_test2.yaml" />
+  <!--<arg name="path_filename" default="$(find oscar_control)/paths/enac_bench/path_01.npz" /> -->
+  <arg name="path_filename" default="$(find oscar_control)/paths/enac_bench/path_03.npz,$(find oscar_control)/paths/enac_bench/path_04.npz,$(find oscar_control)/paths/enac_bench/path_05.npz,$(find oscar_control)/paths/enac_bench/path_08.npz,$(find oscar_control)/paths/enac_bench/path_10.npz,$(find oscar_control)/paths/enac_bench/path_11.npz,$(find oscar_control)/paths/enac_bench/path_08.npz" />
   
   <!--  ****** Maps *****  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
@@ -16,9 +17,9 @@
   <node name="pure_pursuit" pkg="oscar_control" type="pure_pursuit.py">
     <param name="twist_cmd_topic" value="oscar_ackermann_controller/cmd_vel"/>
     <param name="path_filename" value="$(arg path_filename)"/>
-    <param name="vel_setpoint" value="0.7"/>
+    <param name="vel_setpoint" value="0.3"/>
     <param name="vel_adaptive" value="false"/>
-    <param name="look_ahead" value="0.4"/>
+    <param name="look_ahead" value="0.15"/>
   </node>
   
   <!--  ****** World to map transform publisher *****  -->

@@ -8,7 +8,7 @@ Panels:
         - /move base1/Map1/Status1
         - /Odometry1/Status1
         - /Odometry1/Shape1
-        - /PurePursuit1
+        - /smocap1/Image1
         - /PurePursuit1/arc1/Status1
       Splitter Ratio: 0.5
     Tree Height: 443
@@ -78,6 +78,14 @@ Visualization Manager:
           Value: false
         ueye_enac_ceiling_1_6mm_optical_frame:
           Value: true
+        ueye_enac_ceiling_2_6mm_link:
+          Value: true
+        ueye_enac_ceiling_2_6mm_optical_frame:
+          Value: true
+        ueye_enac_ceiling_3_link:
+          Value: true
+        ueye_enac_ceiling_3_optical_frame:
+          Value: true
         world:
           Value: true
       Marker Scale: 0.5
@@ -87,12 +95,8 @@ Visualization Manager:
       Show Names: true
       Tree:
         world:
-          map:
-            odom:
-              base_link:
-                {}
-          ueye_enac_ceiling_1_6mm_optical_frame:
-            ueye_enac_ceiling_1_6mm_link:
+          ueye_enac_ceiling_3_optical_frame:
+            ueye_enac_ceiling_3_link:
               {}
       Update Interval: 0
       Value: true
@@ -237,7 +241,7 @@ Visualization Manager:
       Displays:
         - Class: rviz/Image
           Enabled: true
-          Image Topic: /smocap/image_debug
+          Image Topic: /ueye_enac_ceiling_1_6mm/image_raw
           Max Value: 1
           Median window: 5
           Min Value: 0
@@ -483,7 +487,7 @@ Visualization Manager:
           Marker Topic: /pure_pursuit/goal
           Name: Goal
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true
@@ -502,16 +506,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 5.91119623
+      Distance: 4.38692379
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.33652616
-        Y: 2.393641
-        Z: -0.85636586
+        X: 1.21917677
+        Y: 0.623557091
+        Z: -1.35257936
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
@@ -520,7 +524,7 @@ Visualization Manager:
       Pitch: 1.56979632
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.00355195999
+      Yaw: 1.55672491
     Saved: ~
 Window Geometry:
   Displays:
@@ -538,5 +542,5 @@ Window Geometry:
   Tool Properties:
     collapsed: false
   Width: 2244
-  X: 340
-  Y: 51
+  X: 89
+  Y: 18

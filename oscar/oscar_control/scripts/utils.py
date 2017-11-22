@@ -11,7 +11,7 @@ def deg_of_rad(r): return r/math.pi*180
 
 class SmocapListener:
     def __init__(self):
-        rospy.Subscriber('/smocap/est_body', geometry_msgs.msg.PoseWithCovarianceStamped, self.smocap_cbk)
+        rospy.Subscriber('/smocap/est_marker', geometry_msgs.msg.PoseWithCovarianceStamped, self.smocap_cbk)
         self.ts = None
         self.pose = None
         self.vel = None

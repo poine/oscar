@@ -9,22 +9,41 @@ import utils, guidance
 
 import pdb
 
+class EndOfPathException(Exception):
+    pass
 
+class PurePursuit:
+    def __init__(self, path_file, look_ahead=0.3):
+        self.path = guidance.Path(load=path_file)
+        self.look_ahead = look_ahead
 
-# class PurePursuit:
-#     def __init__(self, path_file):
-#         self.path = guidance.Path(load=path_file)
+    def compute(self, cur_pos, cur_yaw):
+        p1, p2, end_reached, ip1, ip2 = self.path.find_carrot_alt(cur_pos, _d=self.look_ahead)
+        if end_reached:
+            raise EndOfPathException
 
+        p0p2_w = p2 - p0
+        cy, sy = math.cos(psi), math.sin(psi)
+        w2b = np.array([[cy, sy],[-sy, cy]])
+        p0p2_b = np.dot(w2b, p0p2_w)
+        l = np.linalg.norm(p0p2_w)
+        R = (l**2)/(2*p0p2_b[1])
+        return R, p2 # Radius and carrot 
+        
         
 class PurePursuitNode:
     def __init__(self):
         twist_cmd_topic = rospy.get_param('~twist_cmd_topic', '/oscar_ackermann_controller/cmd_vel')
-        path_filename = rospy.get_param('~path_filename', '/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')
+        path_filenames = rospy.get_param('~path_filename', '/home/poine/work/oscar.git/oscar/oscar_control/path_track_ethz_5.npz')
+        _path_filenames = path_filenames.split(',')
+
+        #pdb.set_trace()
+
         self.vel_setpoint = rospy.get_param('~vel_setpoint', '0.4')
         self.vel_adaptive = rospy.get_param('~vel_adaptive', 'false')
         self.look_ahead = rospy.get_param('~look_ahead', '0.25')
         
-        self.paths = [guidance.Path(load=path_filename)]
+        self.paths = [guidance.Path(load=f) for f in _path_filenames]
         #self.controller = PurePursuit(path_filename)
         
         self.dt = 1./60.
@@ -141,6 +160,7 @@ class PurePursuitNode:
         self.rate = rospy.Rate(1./self.dt)
 
         path_idx = 0
+         #self.paths[path
         while not rospy.is_shutdown():
             if not self.compute(self.paths[path_idx], self.look_ahead, self.vel_setpoint, self.vel_adaptive):
                 path_idx = (path_idx+1)%len(self.paths)
