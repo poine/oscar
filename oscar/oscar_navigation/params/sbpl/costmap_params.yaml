@@ -14,7 +14,7 @@ plugins:
 inflation:
   enabled:              true
   cost_scaling_factor:  10.0  # exponential rate at which the obstacle cost drops off (default: 10)
-  inflation_radius:     0.065 # max. distance from an obstacle at which costs are incurred for planning paths.
+  inflation_radius:     0.06 #0.065 # max. distance from an obstacle at which costs are incurred for planning paths.
 
 static:
   enabled:              true
