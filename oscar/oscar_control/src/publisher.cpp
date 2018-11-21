@@ -67,11 +67,10 @@ namespace oscar_controller {
   void Publisher::publish(const double heading, const double x, const double y, const double linear, const double angular, const ros::Time& now) {
     if (last_state_publish_time_ + publish_period_ < now) {
       last_state_publish_time_ += publish_period_;
+      
+      const geometry_msgs::Quaternion orientation(tf::createQuaternionMsgFromYaw(heading));
 
-      const geometry_msgs::Quaternion orientation(
-						  tf::createQuaternionMsgFromYaw(heading));
-
-        if (odom_pub_->trylock())
+      if (odom_pub_->trylock())
         {
             odom_pub_->msg_.header.stamp = now;
             odom_pub_->msg_.pose.pose.position.x = x;
@@ -81,18 +80,18 @@ namespace oscar_controller {
             odom_pub_->msg_.twist.twist.angular.z = angular;
             odom_pub_->unlockAndPublish();
         }
-
-        if (enable_odom_tf_ && tf_odom_pub_->trylock())
+      
+      if (enable_odom_tf_ && tf_odom_pub_->trylock())
         {
-            geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
-            odom_frame.header.stamp = now;
-            odom_frame.transform.translation.x = x;
-            odom_frame.transform.translation.y = y;
-            odom_frame.transform.rotation = orientation;
-            tf_odom_pub_->unlockAndPublish();
+	  geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
+	  odom_frame.header.stamp = now;
+	  odom_frame.transform.translation.x = x;
+	  odom_frame.transform.translation.y = y;
+	  odom_frame.transform.rotation = orientation;
+	  tf_odom_pub_->unlockAndPublish();
         }
     }
-
+    
   }
   
   

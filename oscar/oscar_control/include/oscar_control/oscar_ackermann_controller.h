@@ -16,6 +16,8 @@
 #include "oscar_control/input_manager.h"
 #include "oscar_control/odometry.h"
 #include "oscar_control/publisher.h"
+#include "oscar_control/oac_raw_odom_publisher.h"
+
 
 namespace oscar_controller {
 
@@ -43,6 +45,7 @@ namespace oscar_controller {
       oscar_controller::InputManager   input_manager_;
       oscar_controller::Odometry       odometry_;
       oscar_controller::Publisher      publisher_;
+      oscar_controller::OACRawOdomPublisher raw_odom_publisher_;
 
       // measured values
       double left_wheel_rvel_, right_wheel_rvel_;

@@ -24,6 +24,10 @@ namespace oscar_controller {
 #define WHEEL_TF 0.007
 #define WHEEL_DT 0.010
   
+  /*******************************************************************************
+   *
+   *
+   *******************************************************************************/
   OscarAckermannController::OscarAckermannController():
     left_wheel_duty_(0.)
     ,right_wheel_duty_(0.)
@@ -38,13 +42,22 @@ namespace oscar_controller {
     //rc_enable_soft_start(&D1_, SOFT_START_SEC);
   }
 
+  /*******************************************************************************
+   *
+   *
+   *******************************************************************************/
   OscarAckermannController::~OscarAckermannController() {
 
   }
 
+  
+  /*******************************************************************************
+   *
+   *
+   *******************************************************************************/
   bool OscarAckermannController::init(hardware_interface::RobotHW* hw,
-				    ros::NodeHandle& root_nh,
-				    ros::NodeHandle& controller_nh)
+				      ros::NodeHandle& root_nh,
+				      ros::NodeHandle& controller_nh)
   {
     ROS_INFO_STREAM_NAMED(__NAME, "in OscarAckermannController::init");
     hw_ = static_cast<OscarHardwareInterface*>(hw);
@@ -57,23 +70,33 @@ namespace oscar_controller {
     input_manager_.init(hw, controller_nh);
     odometry_.init(WHEEL_BASE, VELOCITY_ROLLING_WINDOW_SIZE);
     publisher_.init(root_nh, controller_nh);
+    raw_odom_publisher_.init(root_nh, controller_nh);
     return true;
   }
 
+  /*******************************************************************************
+   *
+   *
+   *******************************************************************************/
   void OscarAckermannController::starting(const ros::Time& now) {
-     ROS_INFO_STREAM_NAMED(__NAME, "in OscarAckermannController::starting");
-     odometry_.starting(now);
-     publisher_.starting(now);
-     hw_->switch_motors_on();
+    ROS_INFO_STREAM_NAMED(__NAME, "in OscarAckermannController::starting");
+    odometry_.starting(now);
+    publisher_.starting(now);
+    hw_->switch_motors_on();
   }
-
+  
+  
+  /*******************************************************************************
+   *
+   *
+   *******************************************************************************/
   void OscarAckermannController::update(const ros::Time& now, const ros::Duration& dt) {
     left_wheel_rvel_ = left_wheel_joint_.getVelocity();
     right_wheel_rvel_ = right_wheel_joint_.getVelocity();
-
+    
     input_manager_.update(now);
     odometry_.update(left_wheel_rvel_, right_wheel_rvel_, steering_joint_.getPosition(), now);
-
+    
     
 #ifdef BYPASS_CONTROL
     left_wheel_duty_  = input_manager_.rt_commands_.lin;
@@ -85,10 +108,17 @@ namespace oscar_controller {
     steering_joint_.setCommand(steering_angle_);
     left_wheel_joint_.setCommand(left_wheel_duty_);
     right_wheel_joint_.setCommand(right_wheel_duty_);
-
+    
     publisher_.publish(odometry_.getHeading(), odometry_.getX(), odometry_.getY(), odometry_.getLinear(), odometry_.getAngular(), now);
+    double left_wheel_angle = left_wheel_joint_.getPosition();
+    double right_wheel_angle = right_wheel_joint_.getPosition();
+    raw_odom_publisher_.publish(left_wheel_angle, right_wheel_angle, steering_angle_, now);
   }
-
+  
+  /*******************************************************************************
+   *
+   *
+   *******************************************************************************/
   void OscarAckermannController::stopping(const ros::Time&) {
 
   }
