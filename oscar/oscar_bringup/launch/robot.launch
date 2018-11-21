@@ -15,6 +15,9 @@
   <include file="$(find oscar_control)/launch/control.launch" />
   
   <!-- launch teleop node -->
+  <!-- no... we do that on the ground stations -->
 
+  <!-- lanch multi master discovery node -->
+  <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery"/>
 
 </launch>
