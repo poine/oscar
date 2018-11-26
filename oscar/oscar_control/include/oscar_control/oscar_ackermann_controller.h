@@ -52,7 +52,7 @@ namespace oscar_controller {
       // pid structures
       rc_filter_t left_wheel_pid_, right_wheel_pid_;
       // values output to the hardware interface
-      double left_wheel_duty_, right_wheel_duty_, steering_angle_;
+      double left_wheel_duty_, right_wheel_duty_, steering_angle_, steering_servo_;
       
       void compute_control(const ros::Time& now);
 
