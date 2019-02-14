@@ -26,18 +26,18 @@ class NodePublisher:
             path_msg.poses.append(pose)
         self.pub_path.publish(path_msg)
 
-    def publish_debug(self):
+    def publish_debug(self, goal_pos, R):
         marker_msg = visualization_msgs.msg.Marker()
         marker_msg.header.stamp = rospy.Time.now()
         marker_msg.header.frame_id="world"
         marker_msg.type = visualization_msgs.msg.Marker.CYLINDER
-        marker_msg.pose.position.x = self.ctl.p2[0]
-        marker_msg.pose.position.y = self.ctl.p2[1]
+        marker_msg.pose.position.x = goal_pos[0]
+        marker_msg.pose.position.y = goal_pos[1]
         marker_msg.pose.position.z = 0
         marker_msg.pose.orientation.x = 0;
         marker_msg.pose.orientation.y = 0;
         marker_msg.pose.orientation.z = 0;
-        marker_msg.pose.orientation.w = 0;
+        marker_msg.pose.orientation.w = 1;
         marker_msg.scale.x = .01
         marker_msg.scale.y = .01
         marker_msg.scale.z = .1
@@ -46,15 +46,13 @@ class NodePublisher:
         marker_msg.color.g = 1.0
         marker_msg.color.b = 1.0
         self.pub_goal.publish(marker_msg)
-
-        
         path_msg = nav_msgs.msg.Path()
         path_msg.header.stamp = rospy.Time.now()
-        path_msg.header.frame_id="root_link_m0_actual"
+        path_msg.header.frame_id="base_link"#"root_link_m0_actual"
         for theta in np.arange(0, 2*math.pi, 0.01):
             pose = geometry_msgs.msg.PoseStamped()
-            pose.pose.position.x =  self.ctl.R*math.sin(theta)
-            pose.pose.position.y = -self.ctl.R*math.cos(theta)+self.ctl.R
+            pose.pose.position.x =  R*math.sin(theta)
+            pose.pose.position.y = -R*math.cos(theta)+R
             path_msg.poses.append(pose)
         self.pub_arc.publish(path_msg)
 
@@ -71,8 +69,12 @@ class Node:
         param = tdg.pure_pursuit.Param()
         self.l = param.L = 0.1
         self.ctl = tdg.pure_pursuit.PurePursuit(path_filename, param)
-        self.v = 0.5
-        self.smocap_listener = utils.SmocapListener()
+
+        self.v = rospy.get_param('~vel_setpoint', 0.5)
+        rospy.loginfo(' using velocity setpoint {}'.format(self.v))
+
+        #self.smocap_listener = utils.SmocapListener()
+        self.smocap_listener = utils.GazeboTruthListener()
 
     def periodic(self):
         try:
@@ -86,11 +88,11 @@ class Node:
             else:
                 self.publish_twist_cmd()
         except utils.RobotLostException:
-            print('robot lost')
+            print('robot lost\r')
         except utils.RobotNotLocalizedException:
-            print('robot not localized')
-            #self.publish_path(self.ctl.path) # expensive...
-            #self.publish_debug()
+            print('robot not localized\r')
+        self.node_pub.publish_path(self.ctl.path) # expensive...
+        self.node_pub.publish_debug(self.ctl.p2, self.ctl.R)
 
     def publish_twist_cmd(self):
         #print self.alpha

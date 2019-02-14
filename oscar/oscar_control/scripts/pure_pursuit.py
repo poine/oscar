@@ -7,28 +7,42 @@ import scipy.stats
 
 import utils, guidance
 
+import two_d_guidance.path
+
 import pdb
+
+
+class VelController:
+    def __init__(self, v_sp=0.75):
+        self.K = -2.
+        self.v_sp = v_sp
+
+    def compute(self, v):
+        return self.K*(v-self.v_sp)
+
 
 class EndOfPathException(Exception):
     pass
 
 class PurePursuit:
-    def __init__(self, path_file, look_ahead=0.3):
+    def __init__(self, path_file, params, look_ahead=0.3):
         self.path = guidance.Path(load=path_file)
+        self.params = params
         self.look_ahead = look_ahead
 
-    def compute(self, cur_pos, cur_yaw):
+    def compute(self, cur_pos, cur_psi):
         p1, p2, end_reached, ip1, ip2 = self.path.find_carrot_alt(cur_pos, _d=self.look_ahead)
         if end_reached:
             raise EndOfPathException
 
-        p0p2_w = p2 - p0
-        cy, sy = math.cos(psi), math.sin(psi)
+        p0p2_w = p2 - cur_pos
+        cy, sy = math.cos(cur_psi), math.sin(cur_psi)
         w2b = np.array([[cy, sy],[-sy, cy]])
         p0p2_b = np.dot(w2b, p0p2_w)
         l = np.linalg.norm(p0p2_w)
         R = (l**2)/(2*p0p2_b[1])
-        return R, p2 # Radius and carrot 
+        return 0, math.atan(self.params.L/R)
+        #return R, p2 # Radius and carrot 
         
         
 class PurePursuitNode:
@@ -47,16 +61,29 @@ class PurePursuitNode:
         #self.controller = PurePursuit(path_filename)
         
         self.dt = 1./60.
-        self.l = 0.1                  # wheelbase
+        self.l = rospy.get_param('~wheel_sep', 0.1)                  # wheelbase
         self.pub_twist = rospy.Publisher(twist_cmd_topic, geometry_msgs.msg.Twist, queue_size=1)
         self.pub_path = rospy.Publisher('pure_pursuit/path', nav_msgs.msg.Path, queue_size=1)
         self.pub_curpath = rospy.Publisher('pure_pursuit/curpath', nav_msgs.msg.Path, queue_size=1)
         self.pub_goal =  rospy.Publisher('pure_pursuit/goal', visualization_msgs.msg.Marker, queue_size=1)
         self.pub_arc = rospy.Publisher('pure_pursuit/arc', nav_msgs.msg.Path, queue_size=1)
-        self.smocap_listener = utils.SmocapListener()
+
+        use_gazebo_truth = rospy.get_param('~use_gazebo_truth', 'false')
+        truth_topic = rospy.get_param('~truth_topic', '/rosmip/base_link_truth')
+        if use_gazebo_truth:
+            rospy.loginfo(' using gazebo truth: {}'.format(truth_topic))
+            self.smocap_listener = utils.GazeboTruthListener(truth_topic)
+        else:
+            rospy.loginfo(' using smocap input')
+            self.smocap_listener = utils.SmocapListener()
         self.vel_ref = utils.FirstOrdLinRef(0.75)
         rospy.loginfo(' using twist cmd topic: {}'.format(twist_cmd_topic))
-        
+        rospy.loginfo(' using wheel_sep: {}'.format(self.l))
+        rospy.loginfo(' using path: {}'.format(path_filenames))
+        rospy.loginfo(' using vel_setpoint: {}'.format(self.vel_setpoint))
+        rospy.loginfo(' using look_ahead: {}'.format(self.look_ahead))
+        rospy.loginfo(' using wheel_sep: {}'.format(self.l))
+        rospy.loginfo(' using vel_adaptive: {}'.format(self.vel_adaptive))
 
         
     def publish_curpath(self, _path):
@@ -131,8 +158,15 @@ class PurePursuitNode:
             self.R = float('inf')
             self.alpha, self.v = 0, 0
             return True
-        # get current pose
-        p0, psi = self.smocap_listener.get_loc_and_yaw()
+        try:
+            # get current pose
+            p0, psi = self.smocap_listener.get_loc_and_yaw()
+        except utils.RobotLostException:
+            self.goal = (1, 1)
+            self.R = float('inf')
+            self.alpha, self.v = 0, 0
+            return True
+        
         # find closest point and carrot on path
         p1, p2, end_reached, ip1, ip2 = _path.find_carrot_alt(p0, _d=look_ahead)
         if end_reached:

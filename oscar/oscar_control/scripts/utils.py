@@ -1,5 +1,5 @@
 
-import math, numpy as np, rospy, geometry_msgs.msg, tf, pickle
+import math, numpy as np, scipy, rospy, geometry_msgs.msg, nav_msgs.msg, tf, pickle
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -9,7 +9,12 @@ def array_of_xyz(p): return np.array(list_of_xyz(p))
 def list_of_xyzw(q): return [q.x, q.y, q.z, q.w]
 
 def deg_of_rad(r): return r/math.pi*180
+def rad_of_deg(d): return d/180.*math.pi
 
+class RobotNotLocalizedException(Exception):
+    pass
+class RobotLostException(Exception):
+    pass
 
 class SmocapListener:
     def __init__(self):
@@ -27,11 +32,39 @@ class SmocapListener:
         self.pose = msg.pose.pose
         self.ts = msg.header.stamp.to_sec()
 
-    def get_loc_and_yaw(self):
+    def get_loc_and_yaw(self, max_delay=0.1):
+        if self.ts is None:
+            raise RobotNotLocalizedException
+        if rospy.Time.now().to_sec() - self.ts > max_delay:
+            raise RobotLostException
         l = array_of_xyz(self.pose.position)[:2]
         y = tf.transformations.euler_from_quaternion(list_of_xyzw(self.pose.orientation))[2]
         return l, y
 
+
+class GazeboTruthListener:
+    def __init__(self, topic='/homere/base_link_truth'):
+        rospy.Subscriber(topic, nav_msgs.msg.Odometry, self.truth_cbk)
+        self.ts = None
+        self.pose = None
+        self.vel = None
+
+    def truth_cbk(self, msg):
+        #print msg.pose.pose.position
+        #print msg.twist.twist.linear
+        self.pose = msg.pose.pose
+        self.twist = msg.twist.twist
+        self.vel = abs(self.twist.linear.x)
+        self.ts = msg.header.stamp.to_sec()
+        
+    def get_loc_and_yaw(self, max_delay=0.1):
+        if self.ts is None:
+            raise RobotNotLocalizedException
+        if rospy.Time.now().to_sec() - self.ts > max_delay:
+            raise RobotLostException
+        l = array_of_xyz(self.pose.position)[:2]
+        y = tf.transformations.euler_from_quaternion(list_of_xyzw(self.pose.orientation))[2]
+        return l, y
 
 
 class LinRef:
@@ -51,6 +84,10 @@ class LinRef:
     def poles(self):
         return np.roots(np.insert(np.array(self.K[::-1]), 0, -1))
 
+    def reset(self, X0=None):
+        if X0 is None: X0 = np.zeros(self.order+1)
+        self.X = X0
+    
 
 class FirstOrdLinRef(LinRef):
     def __init__(self, tau):
@@ -73,6 +110,10 @@ class MotorRef(LinRef):
         return self.X
 
 
+
+
+
+    
 def save_trajectory(time, X, U, desc, filename):
     with open(filename, "wb") as f:
         pickle.dump([time, X, U, desc], f)
@@ -102,7 +143,7 @@ def sine_sweep(t, omega=2, domega=0.5, domega1=0.5): return math.sin(omega*(1-do
 
 
 def random_input_vec(time): return np.random.uniform(low=-1.0, high=1.0, size=len(time))
-def step_input_vec(time): return [step(t) for t in time]
+def step_input_vec(time, a0=-1, a1=1, dt=4, t0=0): return [step(t, a0, a1, dt, t0) for t in time]
 def sine_input_vec(time): return np.sin(time)
 def sawtooth_input_vec(time): return scipy.signal.sawtooth(time)
 def sine_swipe_input_vec(time): return [sine_sweep(t) for t in time]
