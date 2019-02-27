@@ -9,7 +9,7 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 // Mechanics
 #define GEARBOX                       100.37
 #define ENCODER_RES                     12
-//#define WHEEL_RADIUS_M                  0.03
+
 // Electrical hookups
 #define STEERING_SERVO_CH               1
 #define STEERING_SERVO_NEUTRAL          0.
@@ -27,13 +27,16 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 #define IMU_SAMPLE_RATE_HZ 100
 #define IMU_DT (1./IMU_SAMPLE_RATE_HZ)
 
+static OscarHardwareInterface* _foo_hw_interf = NULL;
+
 void _imu_callback(void* data) { reinterpret_cast<OscarHardwareInterface*>(data)->IMUCallback(); }
 
 /*******************************************************************************
  *
  *
  *******************************************************************************/
-OscarHardwareInterface::OscarHardwareInterface()
+OscarHardwareInterface::OscarHardwareInterface():
+  gear_enc_res_(GEARBOX*ENCODER_RES)
 {
   ROS_INFO_STREAM_NAMED(__NAME, "in OscarHardwareInterface::OscarHardwareInterface...");
 
@@ -82,30 +85,47 @@ OscarHardwareInterface::~OscarHardwareInterface() {
 }
 
 
+#define I2C_BUS 2
+#define GPIO_INT_PIN_CHIP 3
+#define GPIO_INT_PIN_PIN  21
+
+static void __mpu_cbk(void) {  _foo_hw_interf->IMUCallback(); }
+
+
 /*******************************************************************************
  *
  *
  *******************************************************************************/
 bool OscarHardwareInterface::start() {
 
-  if(rc_initialize()){
-    ROS_ERROR("in OscarHardwareInterface::start: failed to initialize robotics cape");
-    return false;
+  // encoders
+  if(rc_encoder_eqep_init()){
+    ROS_ERROR("in OscarHardwareInterface::start: failed to initialize eqep");
+    return -1;
   }
-
+  // motors
+  if (rc_motor_init_freq(RC_MOTOR_DEFAULT_PWM_FREQ)) {
+    ROS_ERROR("in OscarHardwareInterface::start: failed to initialize motors");
+    return -1;
+  }
   // IMU
-  rc_imu_config_t imu_config = rc_default_imu_config();
-  imu_config.dmp_sample_rate = IMU_SAMPLE_RATE_HZ;
-  imu_config.orientation = ORIENTATION_Z_UP;
-  if(rc_initialize_imu_dmp(&rc_imu_data_, imu_config)){
+  rc_mpu_config_t conf = rc_mpu_default_config();
+  conf.i2c_bus = I2C_BUS;
+  conf.gpio_interrupt_pin_chip = GPIO_INT_PIN_CHIP;
+  conf.gpio_interrupt_pin = GPIO_INT_PIN_PIN;
+  conf.dmp_sample_rate = IMU_SAMPLE_RATE_HZ;
+  conf.dmp_fetch_accel_gyro = true;
+  conf.orient = ORIENTATION_Z_UP;
+  if(rc_mpu_initialize_dmp(&rc_mpu_data_, conf)){
     ROS_ERROR("in OscarHardwareInterface::start: can't talk to IMU, all hope is lost\n");
-    //rc_blink_led(RED, 5, 5);
     return false;
   }
-  rc_set_imu_interrupt_func(&_imu_callback, reinterpret_cast<void*>(this));
+  _foo_hw_interf = this;
+  rc_mpu_set_dmp_callback(&__mpu_cbk);
   // Servos
-  rc_enable_servo_power_rail();
-  rc_send_servo_pulse_normalized( STEERING_SERVO_CH, STEERING_SERVO_NEUTRAL );
+  rc_servo_init();
+  rc_servo_power_rail_en(1);
+  rc_servo_send_pulse_normalized( STEERING_SERVO_CH, STEERING_SERVO_NEUTRAL );
   
   rc_set_state(RUNNING);
   return true;
@@ -116,10 +136,9 @@ bool OscarHardwareInterface::start() {
  *
  *******************************************************************************/
 void OscarHardwareInterface::read() {
-
-  double left_wheel_angle = rc_get_encoder_pos(ENCODER_CHANNEL_L) * 2 * M_PI / (ENCODER_POLARITY_L * GEARBOX * ENCODER_RES);
-  double right_wheel_angle = rc_get_encoder_pos(ENCODER_CHANNEL_R) * 2 * M_PI / (ENCODER_POLARITY_R * GEARBOX * ENCODER_RES);
-  joint_velocity_[0] = (left_wheel_angle - joint_position_[0]) / IMU_DT;
+  double left_wheel_angle = rc_encoder_read(ENCODER_CHANNEL_L) * 2 * M_PI / (ENCODER_POLARITY_L * gear_enc_res_);
+  double right_wheel_angle = rc_encoder_read(ENCODER_CHANNEL_R) * 2 * M_PI / (ENCODER_POLARITY_R * gear_enc_res_);
+  joint_velocity_[0] = (left_wheel_angle  - joint_position_[0]) / IMU_DT;
   joint_velocity_[1] = (right_wheel_angle - joint_position_[1]) / IMU_DT;
   joint_position_[0] = left_wheel_angle;
   joint_position_[1] = right_wheel_angle;
@@ -137,9 +156,9 @@ void OscarHardwareInterface::write() {
   float steering = joint_position_command_[2];
   //ROS_INFO(" write HW %f %f %f", dutyL, dutyR, steering);
   
-  rc_set_motor(MOTOR_CHANNEL_L, MOTOR_POLARITY_L * dutyL);
-  rc_set_motor(MOTOR_CHANNEL_R, MOTOR_POLARITY_R * dutyR);
-  rc_send_servo_pulse_normalized( STEERING_SERVO_CH, STEERING_SERVO_NEUTRAL+steering*STEERING_SERVO_POLARITY );
+  rc_motor_set(MOTOR_CHANNEL_L, MOTOR_POLARITY_L * dutyL);
+  rc_motor_set(MOTOR_CHANNEL_R, MOTOR_POLARITY_R * dutyR);
+  rc_servo_send_pulse_normalized( STEERING_SERVO_CH, STEERING_SERVO_NEUTRAL+steering*STEERING_SERVO_POLARITY );
 }
 
 /*******************************************************************************
@@ -148,9 +167,8 @@ void OscarHardwareInterface::write() {
  *******************************************************************************/
 bool OscarHardwareInterface::shutdown() {
   ROS_INFO("in OscarHardwareInterface::shutdown");
-  rc_power_off_imu();
-  rc_cleanup();
-
+  rc_encoder_eqep_cleanup();
+  rc_mpu_power_off();
   return true;
 }
 
@@ -158,24 +176,24 @@ bool OscarHardwareInterface::shutdown() {
  *
  *
  *******************************************************************************/
+#define _DEG2RAD(_D) _D/180.*M_PI
 void OscarHardwareInterface::IMUCallback(void) {
 
   // Called by rc IMU thread
   // imu_orientation is in the order of geometry_msg, ie x, y, z, w
   // wheras dmp_quat is w, x, y, z
-  imu_orientation_[0] = rc_imu_data_.dmp_quat[1];
-  imu_orientation_[1] = rc_imu_data_.dmp_quat[2];
-  imu_orientation_[2] = rc_imu_data_.dmp_quat[3];
-  imu_orientation_[3] = rc_imu_data_.dmp_quat[0];
+  imu_orientation_[0] = rc_mpu_data_.dmp_quat[1];
+  imu_orientation_[1] = rc_mpu_data_.dmp_quat[2];
+  imu_orientation_[2] = rc_mpu_data_.dmp_quat[3];
+  imu_orientation_[3] = rc_mpu_data_.dmp_quat[0];
 
-  imu_angular_velocity_[0] = rc_imu_data_.gyro[0]/180.*M_PI; // WTF are those units !!!
-  imu_angular_velocity_[1] = rc_imu_data_.gyro[1]/180.*M_PI;
-  imu_angular_velocity_[2] = rc_imu_data_.gyro[2]/180.*M_PI; 
+  imu_angular_velocity_[0] = _DEG2RAD(rc_mpu_data_.gyro[0]); // WTF are those units !!!
+  imu_angular_velocity_[1] = _DEG2RAD(rc_mpu_data_.gyro[1]);
+  imu_angular_velocity_[2] = _DEG2RAD(rc_mpu_data_.gyro[2]); 
 
-  imu_linear_acceleration_[0] = rc_imu_data_.accel[0];
-  imu_linear_acceleration_[1] = rc_imu_data_.accel[1];
-  imu_linear_acceleration_[2] = rc_imu_data_.accel[2];
-
+  imu_linear_acceleration_[0] = rc_mpu_data_.accel[0];
+  imu_linear_acceleration_[1] = rc_mpu_data_.accel[1];
+  imu_linear_acceleration_[2] = rc_mpu_data_.accel[2];
 }
 
 
@@ -197,10 +215,7 @@ int main(int argc, char** argv)
   ros::Duration period(IMU_DT);
   while (ros::ok() and rc_get_state()!=EXITING)
     {
-      pthread_mutex_lock( &rc_imu_read_mutex );
-      pthread_cond_wait( &rc_imu_read_condition, &rc_imu_read_mutex );
-      pthread_mutex_unlock( &rc_imu_read_mutex );
-      
+      rc_mpu_block_until_dmp_data();
       hw.read();
       cm.update(ros::Time::now(), period);
       hw.write();

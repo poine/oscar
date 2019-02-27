@@ -10,7 +10,7 @@
 
 #include <pluginlib/class_list_macros.h>
 
-#include "roboticscape.h"
+#include <robotcontrol.h>
 
 #include "oscar_control/oscar_hardware_interface.h"
 #include "oscar_control/input_manager.h"

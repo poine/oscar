@@ -34,10 +34,10 @@ namespace oscar_controller {
     ,steering_angle_(0.) {
 
     ROS_INFO_STREAM_NAMED(__NAME, "in OscarAckermannController::OscarAckermannController...");
-    left_wheel_pid_ = rc_empty_filter();
-    right_wheel_pid_ = rc_empty_filter();
-    rc_pid_filter(&left_wheel_pid_, WHEEL_KP, WHEEL_KI, WHEEL_KD, WHEEL_TF, WHEEL_DT);
-    rc_pid_filter(&right_wheel_pid_, WHEEL_KP, WHEEL_KI, WHEEL_KD, WHEEL_TF, WHEEL_DT);
+    left_wheel_pid_ = rc_filter_empty();
+    right_wheel_pid_ = rc_filter_empty();
+    rc_filter_pid(&left_wheel_pid_, WHEEL_KP, WHEEL_KI, WHEEL_KD, WHEEL_TF, WHEEL_DT);
+    rc_filter_pid(&right_wheel_pid_, WHEEL_KP, WHEEL_KI, WHEEL_KD, WHEEL_TF, WHEEL_DT);
     //rc_enable_saturation(&D1_, -1.0, 1.0);
     //rc_enable_soft_start(&D1_, SOFT_START_SEC);
   }
@@ -154,8 +154,8 @@ namespace oscar_controller {
     double left_wheel_err = left_wheel_rvel_sp - left_wheel_rvel_;
     double right_wheel_err = right_wheel_rvel_sp - right_wheel_rvel_;
     
-    double left_wheel_feedback = rc_march_filter(&left_wheel_pid_, left_wheel_err);
-    double right_wheel_feedback = rc_march_filter(&right_wheel_pid_, right_wheel_err);
+    double left_wheel_feedback = rc_filter_march(&left_wheel_pid_, left_wheel_err);
+    double right_wheel_feedback = rc_filter_march(&right_wheel_pid_, right_wheel_err);
     
     left_wheel_duty_ =  motor_precommand(left_wheel_rvel_sp) + left_wheel_feedback;
     right_wheel_duty_ = motor_precommand(right_wheel_rvel_sp) + right_wheel_feedback;

@@ -8,7 +8,7 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/imu_sensor_interface.h>
 
-#include "roboticscape.h"
+#include <robotcontrol.h>
 
 #define NB_JOINTS 3
 
@@ -22,8 +22,8 @@ class OscarHardwareInterface : public hardware_interface::RobotHW
   void read();
   void write();
   bool shutdown();
-  void switch_motors_on()  { rc_enable_motors(); }
-  void switch_motors_off() { rc_disable_motors(); }
+  void switch_motors_on()  { rc_motor_standby(0); }
+  void switch_motors_off() { rc_motor_standby(1); }
   
   void IMUCallback(void);
  
@@ -46,8 +46,8 @@ class OscarHardwareInterface : public hardware_interface::RobotHW
   hardware_interface::PositionJointInterface pj_interface_;
   hardware_interface::ImuSensorInterface     imu_sensor_interface_;
 
-  rc_imu_data_t rc_imu_data_;
-
+  rc_mpu_data_t rc_mpu_data_;
+  double gear_enc_res_;
 };
 
 
