@@ -14,7 +14,7 @@
   </group>
 
   <group if="$(arg use_ack)">
-    <node pkg="two_d_guidance" type="teleop_ack_joy.p"/>
+    <node pkg="two_d_guidance" type="teleop_ack_joy.py" name="teleop_ack_joy"/>
   </group>
 
   
