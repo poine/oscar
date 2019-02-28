@@ -16,6 +16,10 @@
   
   <!-- launch teleop node -->
   <!-- no... we do that on the ground stations -->
+  <include file="$(find oscar_control)/launch/teleop.launch">
+    <arg name="use_twist" value="false" />
+    <arg name="use_ack" value="true" />
+  </include>
 
   <!-- lanch multi master discovery node -->
   <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery"/>
