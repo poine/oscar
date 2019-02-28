@@ -133,7 +133,8 @@ namespace oscar_controller {
 
 #define DUTY_OF_WHEEL_RVEL(_rv) (_rv*0.03)
 #define STS_A1  0.938104
-#define STS_A0 -0.138223
+//#define STS_A0 -0.138223
+#define STS_A0 0.05
   
   void OscarAckermannController::compute_control(const ros::Time&) {
 
