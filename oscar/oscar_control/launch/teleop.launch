@@ -1,12 +1,21 @@
 <?xml version="1.0"?>
 <launch>
-
+  <arg name="use_twist" default="true"/>
+  <arg name="use_ack" default="false"/>
+    
   <rosparam command="load" file="$(find oscar_control)/config/teleop.yaml" />
   
   <node pkg="joy" type="joy_node" name="joy_node" />
 
-  <node pkg="teleop_twist_joy" type="teleop_node" name="teleop_twist_joy">
-    <remap from="cmd_vel" to="/oscar_ackermann_controller/cmd_vel" />
-  </node>
+  <group if="$(arg use_twist)">
+    <node pkg="teleop_twist_joy" type="teleop_node" name="teleop_twist_joy">
+      <remap from="cmd_vel" to="/oscar_ackermann_controller/cmd_vel" />
+    </node>
+  </group>
 
+  <group if="$(arg use_ack)">
+    <node pkg="two_d_guidance" type="teleop_ack_joy.p"/>
+  </group>
+
+  
 </launch>
