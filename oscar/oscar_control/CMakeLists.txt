@@ -14,6 +14,7 @@ add_compile_options(-faligned-new -Wno-psabi)
 find_package(catkin REQUIRED COMPONENTS
   controller_interface
   controller_manager
+  ackermann_msgs
   message_generation
   )
 
