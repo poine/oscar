@@ -3,6 +3,7 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/TwistStamped.h>
+#include <ackermann_msgs/AckermannDriveStamped.h>
 #include <realtime_tools/realtime_buffer.h>
 #include <realtime_tools/realtime_publisher.h>
 
@@ -21,19 +22,24 @@ namespace oscar_controller {
     {
       double lin;
       double ang;
-      ros::Time stamp;
+      double steering;
+      double speed;
+      int mode;
+      ros::Time stamp_twist;
+      ros::Time stamp_ack;
       
-      Commands() : lin(0.0), ang(0.0), stamp(0.0) {}
+    Commands() : lin(0.0), ang(0.0), steering(0.), speed(0.), mode(0), stamp_twist(0.0), stamp_ack(0.0) {}
     };
     realtime_tools::RealtimeBuffer<Commands> command_;
     Commands nrt_ros_command_struct_;
     ros::Subscriber sub_command_;
-
+    ros::Subscriber sub_command_ack_;
+ 
     Commands rt_commands_;
     
   private:
     void cmdVelCallback(const geometry_msgs::Twist& command);
-    
+    void cmdAckCallback(const ackermann_msgs::AckermannDriveStamped &command);
   };
 
 }

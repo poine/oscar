@@ -137,19 +137,27 @@ namespace oscar_controller {
   
   void OscarAckermannController::compute_control(const ros::Time&) {
 
-    double virtual_steering_angle;
-    if (input_manager_.rt_commands_.lin == 0)
-      virtual_steering_angle = 0.;
-    else
-      virtual_steering_angle = std::atan(input_manager_.rt_commands_.ang/input_manager_.rt_commands_.lin* GEOM_L);
+    double virtual_steering_angle, speed;
+    if (input_manager_.rt_commands_.mode == 0) {
+      if (input_manager_.rt_commands_.lin == 0)
+	virtual_steering_angle = 0.;
+      else
+	virtual_steering_angle = std::atan(input_manager_.rt_commands_.ang/input_manager_.rt_commands_.lin* GEOM_L);
+      speed =  input_manager_.rt_commands_.lin;
+    }
+    else {
+      virtual_steering_angle = input_manager_.rt_commands_.steering;
+      speed =  input_manager_.rt_commands_.speed;
+    }
 					 
     steering_angle_ = virtual_steering_angle; // mechanics is supposedly doing the trick...
     steering_servo_ = STS_A1 * steering_angle_ + STS_A0;
 
-    //double wheels_rvel = input_manager_.rt_commands_.lin / WHEEL_RADIUS;
+    
+    //double wheels_rvel = speed / WHEEL_RADIUS;
     double dv = input_manager_.rt_commands_.ang * GEOM_D / 2;
-    double left_wheel_rvel_sp  = ( input_manager_.rt_commands_.lin - dv ) / WHEEL_RADIUS;
-    double right_wheel_rvel_sp = ( input_manager_.rt_commands_.lin + dv ) / WHEEL_RADIUS;
+    double left_wheel_rvel_sp  = ( speed - dv ) / WHEEL_RADIUS;
+    double right_wheel_rvel_sp = ( speed + dv ) / WHEEL_RADIUS;
 
     double left_wheel_err = left_wheel_rvel_sp - left_wheel_rvel_;
     double right_wheel_err = right_wheel_rvel_sp - right_wheel_rvel_;
