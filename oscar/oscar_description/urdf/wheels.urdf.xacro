@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="rear_wheel" params="prefix wheel_radius lr_reflect *joint_pose">
+
+    <link name="${prefix}_wheel_link">
+      <visual>
+	<xacro:unless value="${high_definition_wheel_visual}">
+	  <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+          <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+          <material name="yellow" />
+	</xacro:unless>
+	<xacro:if value="${high_definition_wheel_visual}">
+	  <xacro:property name="wheel_mesh_scale" value="${wheel_radius/0.03}" />
+	  <origin xyz="0 0 0" rpy="0 0 ${lr_reflect*pi/2}"/>
+          <geometry><mesh scale="1. ${wheel_mesh_scale} ${wheel_mesh_scale}" filename="package://common_robots/meshes/wheel_60.dae"/></geometry>
+	</xacro:if>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+      </collision>
+      <xacro:inertial_cylinder_with_pose mass="${wheel_mass}" radius="${wheel_radius}" height="${wheel_width}">
+	<origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+      </xacro:inertial_cylinder_with_pose> 
+    </link>
+
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="chassis_link"/>
+      <child link="${prefix}_wheel_link" />
+      <xacro:insert_block name="joint_pose" />
+      <axis xyz="0 1 0" />
+      <dynamics damping="${wheel_joint_damping}" friction="${wheel_joint_friction}"/>
+      <limit effort="1" velocity="10"/>
+    </joint>
+
+    <transmission name="${prefix}_wheel_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}_wheel_joint">
+	<hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}_actuator">
+        <hardwareInterface>VelocityJointInterface</hardwareInterface>
+	<mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+       
+  </xacro:macro>
+
+
+  <!-- Front wheel -->
+  <xacro:macro name="front_wheel" params="wheel_radius *joint_pose">
+    <link name="steering_link">
+      <visual>
+        <origin xyz="0 0 0"/>
+        <geometry><cylinder radius="0.0025" length="0.01"/></geometry>
+      </visual>
+    </link>
+
+    <joint name="steering_link_joint" type="fixed">
+      <xacro:insert_block name="joint_pose" />
+      <parent link="chassis_link" />
+      <child link="steering_link" />
+    </joint>
+
+    
+    <link name="front_axle_carrier_link">
+      <visual>
+        <origin xyz="0 0 0"/>
+        <geometry><cylinder radius="0.0025" length="0.01"/></geometry>
+        <material name="yellow" />
+      </visual>
+    </link>
+
+    
+    <joint name="steering_joint" type="revolute">
+      <parent link="steering_link"/>
+      <child link="front_axle_carrier_link"/>
+      <origin xyz="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="${-pi/4}" upper="${pi/4}" effort="${steering_servo_stall_torque}" velocity="${steering_servo_no_load_speed}"/>
+    </joint>
+
+    <link name="front_wheel_link">
+      <visual>
+	<xacro:unless value="${high_definition_wheel_visual}">
+	  <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+          <geometry><cylinder radius="${front_wheel_radius}" length="${front_wheel_width}"/></geometry>
+          <material name="transp_yellow" />
+	</xacro:unless>
+	<xacro:if value="${high_definition_wheel_visual}">
+	  <xacro:property name="wheel_mesh_scale" value="${wheel_radius/0.03}" />
+	  <origin xyz="0 0 0" rpy="0 0 ${pi/2}"/>
+          <geometry><mesh scale="1. ${wheel_mesh_scale} ${wheel_mesh_scale}" filename="package://common_robots/meshes/wheel_60.dae"/></geometry>
+	</xacro:if>
+      </visual>
+    </link>
+
+    <joint name="front_axle_joint" type="continuous">
+      <parent link="front_axle_carrier_link"/>
+      <child link="front_wheel_link"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="${front_wheel_axle_joint_eff_limit}" velocity="${front_wheel_axle_joint_vel_limit}"/>
+      <dynamic damping="${front_wheel_axle_joint_damping}" friction="{front_wheel_axle_joint_friction}"/>
+    </joint>
+    
+  </xacro:macro>
+  
+</robot>

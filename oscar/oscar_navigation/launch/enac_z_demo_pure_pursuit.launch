@@ -5,6 +5,7 @@
   <node name="master_sync_ray" pkg="master_sync_fkie" type="master_sync" output="screen">
     <param name="sync_hosts" value="ray"/>
     <rosparam param="sync_topics"> ['/smocap/status', '/smocap/est_marker', '/smocap/cams_fov'] </rosparam>
+    <rosparam param="sync_nodes"> ['/smocap_node'] </rosparam>
   </node>
 
 

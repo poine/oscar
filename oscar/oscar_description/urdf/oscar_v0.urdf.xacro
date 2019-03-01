@@ -1,11 +1,9 @@
 <?xml version="1.0"?>
 <robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
   
-  <xacro:property name="PI" value="3.1415926535897931" />
-
-  <!-- Body -->
-  <link name="base_link"></link>
-
+  <xacro:property name="high_definition_wheel_visual" value="true" />
+  
+  <xacro:include filename="$(find oscar_description)/urdf/oscar.urdf.xacro" />
   
   <!-- Bring in simulation data for Gazebo. -->
   <xacro:include filename="$(find oscar_description)/urdf/oscar.gazebo" />
