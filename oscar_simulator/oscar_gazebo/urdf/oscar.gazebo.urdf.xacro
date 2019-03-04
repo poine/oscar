@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="robot_name" default="oscar_v0" />
+  <xacro:include filename="$(find oscar_description)/urdf/${robot_name}.urdf.xacro" />
+
+  <xacro:property name="wheel_mu1" default="10000" />
+  <xacro:property name="wheel_mu2" default="10000" />
+
+  
+  <!-- make it colorfull -->
+  <gazebo reference="chassis_link"><material>Gazebo/GreenTransparent</material></gazebo>
+  <gazebo reference="steering_link"><material>Gazebo/Red</material></gazebo>
+  <gazebo reference="front_axle_carrier_link"><material>Gazebo/Blue</material></gazebo>
+  <gazebo reference="imu_link"><material>Gazebo/Red</material></gazebo>
+
+  <gazebo reference="left_wheel_link">
+    <mu1>${wheel_mu1}</mu1>
+    <mu2>${wheel_mu2}</mu2>
+    <!-- <kp>1000000.0</kp> -->
+    <!-- <kd>100.0</kd> -->
+    <minDepth>0.001</minDepth>
+    <!-- <maxVel>2.0</maxVel> -->
+    <material>Gazebo/Orange</material>
+  </gazebo>
+
+  <gazebo reference="right_wheel_link">
+    <mu1>${wheel_mu1}</mu1>
+    <mu2>${wheel_mu2}</mu2>
+    <!-- <kp>1000000.0</kp> -->
+    <!-- <kd>100.0</kd> -->
+    <minDepth>0.001</minDepth>
+    <!-- <maxVel>2.0</maxVel> -->
+    <material>Gazebo/Orange</material>
+  </gazebo>
+
+  <gazebo reference="front_wheel_link">
+    <mu1>${wheel_mu1}</mu1>
+    <mu2>${wheel_mu2}</mu2>
+    <!-- <kp>1000000.0</kp> -->
+    <!-- <kd>100.0</kd> -->
+    <minDepth>0.001</minDepth>
+    <!-- <maxVel>2.0</maxVel> -->
+    <material>Gazebo/Orange</material>
+  </gazebo>
+  
+  
+  <!-- ros_control plugin -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace></robotNamespace>
+      <robotParam>${robot_name}/robot_description</robotParam>
+      <robotSimType>oscar_hardware_gazebo/OscarHardwareInterface</robotSimType>
+      <controlPeriod>0.01</controlPeriod>
+    </plugin>
+  </gazebo>
+
+  <!-- IMU plugin   -->
+  <gazebo reference="imu_link">
+    <plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
+      <alwaysOn>true</alwaysOn>
+      <frameName>imu_link</frameName>
+      <bodyName>imu_link</bodyName>
+      <topicName>${robot_name}/imu</topicName>
+      <serviceName>${robot_name}/imu_service</serviceName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <updateRate>100.0</updateRate>
+    </plugin>
+  </gazebo>
+ <!--
+  <gazebo reference="imu_link">
+    <gravity>true</gravity>
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <topic>__default_topic__</topic>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <topicName>imu</topicName>
+        <bodyName>imu_link</bodyName>
+        <updateRateHZ>10.0</updateRateHZ>
+        <gaussianNoise>0.0</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <frameName>imu_link</frameName>
+      </plugin>
+      <pose>0 0 0 0 0 0</pose>
+    </sensor>
+  </gazebo>
+  -->
+
+
+  
+  <!-- Ground Truth  -->
+  <gazebo>
+    <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+      <frameName>world</frameName>
+      <bodyName>base_link</bodyName>
+      <topicName>${robot_name}/base_link_truth</topicName>
+      <updateRate>100.0</updateRate>
+    </plugin>
+  </gazebo>
+
+
+</robot>

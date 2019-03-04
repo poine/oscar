@@ -33,7 +33,7 @@ namespace oscar_controller {
     odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(controller_nh, "odom", 100));
     odom_pub_->msg_.header.frame_id = odom_frame_id_;
     odom_pub_->msg_.child_frame_id = base_frame_id_;
-    odom_pub_->msg_.pose.pose.position.z = 0;
+    odom_pub_->msg_.pose.pose.position.z = 0.03;
     odom_pub_->msg_.pose.covariance = boost::assign::list_of
                                       (static_cast<double>(pose_cov_list[0])) (0)  (0)  (0)  (0)  (0)
                                       (0)  (static_cast<double>(pose_cov_list[1])) (0)  (0)  (0)  (0)

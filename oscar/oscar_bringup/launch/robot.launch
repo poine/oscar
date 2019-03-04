@@ -2,26 +2,38 @@
 <launch>
 
   <arg name="config" default="oscar_v0"/>
-
-
-  <node name="robot_hardware" pkg="oscar_control" type="oscar_hardware_interface_node" />
-
+  <arg name="start_hardware" default="true"/>
+  <arg name="load_urdf" default="true"/>
+  <arg name="start_description" default="true"/>
+  <arg name="start_teleop" default="true"/>
+  <arg name="start_multimaster" default="true"/>
+  
+  <!-- Starts hardware interface -->
+  <group if="$(arg start_hardware)">
+    <node name="robot_hardware" pkg="oscar_control" type="oscar_hardware_interface_node" />
+  </group>
+  
   <!-- Load Oscar's description -->
-  <include file="$(find oscar_description)/launch/description.launch">
-    <arg name="config" value="$(arg config)" />
-  </include>
+  <group if="$(arg start_description)">
+    <include file="$(find oscar_description)/launch/description.launch">
+      <arg name="config" value="$(arg config)" />
+      <arg name="load_urdf" default="$(arg load_urdf)"/>
+    </include>
+  </group>
   
   <!-- launch controllers nodes -->  
   <include file="$(find oscar_control)/launch/control.launch" />
   
   <!-- launch teleop node -->
-  <!-- no... we do that on the ground stations -->
-  <include file="$(find oscar_control)/launch/teleop.launch">
-    <arg name="use_twist" value="false" />
-    <arg name="use_ack" value="true" />
-  </include>
+  <group if="$(arg start_teleop)">
+    <include file="$(find oscar_control)/launch/teleop.launch">
+      <arg name="use_twist" value="false" />
+      <arg name="use_ack" value="true" />
+    </include>
+  </group>
 
   <!-- lanch multi master discovery node -->
-  <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery"/>
-
+  <group if="$(arg start_multimaster)">
+    <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery"/>
+  </group>
 </launch>

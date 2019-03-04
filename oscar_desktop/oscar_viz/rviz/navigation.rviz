@@ -5,9 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /TF1/Frames1
-        - /smocap1
+        - /ekf1/filtered1
       Splitter Ratio: 0.5
-    Tree Height: 1133
+    Tree Height: 728
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -45,8 +45,7 @@ Visualization Manager:
       Collision Enabled: false
       Enabled: true
       Links:
-        All Links Enabled:
-          {}
+        All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
@@ -55,8 +54,43 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        chassis_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_axle_carrier_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        steering_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: RobotModel
-      Robot Description: robot_description
+      Robot Description: oscar_v0/robot_description
       TF Prefix: ""
       Update Interval: 0
       Value: true
@@ -68,13 +102,27 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: false
+        chassis_link:
+          Value: true
+        front_axle_carrier_link:
+          Value: false
+        front_wheel_link:
+          Value: true
+        imu_link:
+          Value: false
+        left_wheel_link:
+          Value: false
         map:
           Value: false
         odom:
           Value: true
+        right_wheel_link:
+          Value: false
+        steering_link:
+          Value: false
         world:
           Value: true
-      Marker Scale: 0.5
+      Marker Scale: 0.25
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -84,7 +132,17 @@ Visualization Manager:
           map:
             odom:
               base_link:
-                {}
+                chassis_link:
+                  left_wheel_link:
+                    {}
+                  right_wheel_link:
+                    {}
+                  steering_link:
+                    front_axle_carrier_link:
+                      front_wheel_link:
+                        {}
+                imu_link:
+                  {}
       Update Interval: 0
       Value: true
     - Class: rviz/Group
@@ -254,7 +312,7 @@ Visualization Manager:
           Marker Topic: /smocap/cams_fov
           Name: cam_fov
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true
@@ -434,7 +492,7 @@ Visualization Manager:
               Scale: 1
               Value: true
             Value: false
-          Enabled: true
+          Enabled: false
           Keep: 100
           Name: Odometry
           Position Tolerance: 0.0010000000474974513
@@ -450,8 +508,8 @@ Visualization Manager:
             Value: Arrow
           Topic: /oscar_ackermann_controller/odom
           Unreliable: false
-          Value: true
-        - Angle Tolerance: 0.009999999776482582
+          Value: false
+        - Angle Tolerance: 0.05000000074505806
           Class: rviz/Odometry
           Covariance:
             Orientation:
@@ -469,9 +527,9 @@ Visualization Manager:
               Value: true
             Value: false
           Enabled: true
-          Keep: 100
+          Keep: 300
           Name: filtered
-          Position Tolerance: 0.009999999776482582
+          Position Tolerance: 0.05000000074505806
           Shape:
             Alpha: 1
             Axes Length: 1
@@ -502,41 +560,41 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 5.589689254760742
+      Distance: 4.642430782318115
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.9921362400054932
-        Y: 1.6356077194213867
-        Z: -0.8506955504417419
+        X: 1.9973618984222412
+        Y: 1.8246012926101685
+        Z: 0.1227107122540474
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9347969889640808
+      Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.5767254829406738
+      Yaw: 1.5499030351638794
     Saved: ~
 Window Geometry:
   Displays:
-    collapsed: false
-  Height: 1395
+    collapsed: true
+  Height: 990
   Help:
     collapsed: false
-  Hide Left Dock: false
+  Hide Left Dock: true
   Hide Right Dock: false
   Image:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001ee00000519fc0200000007fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073020000087b000004fd00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d00000519000000c900fffffffb0000000a0049006d00610067006500000002b4000002a20000001600fffffffb0000000800480065006c00700000000523000000c80000006e00ffffff000000010000010f0000023cfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007301000000280000023c0000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a00000000000000000fb0000000800540069006d00650100000000000004500000000000000000000006d00000051900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001ee00000384fc0200000007fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073020000087b000004fd00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000003d00000384000000c900fffffffb0000000a0049006d00610067006500000002b4000002a20000001600fffffffb0000000800480065006c00700000000523000000c80000006e00ffffff000000010000010f0000023cfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007301000000280000023c0000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a00000000000000000fb0000000800540069006d00650100000000000004500000000000000000000006170000038400000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Tool Properties:
     collapsed: false
-  Width: 2244
-  X: 89
-  Y: 0
+  Width: 1559
+  X: 611
+  Y: 27

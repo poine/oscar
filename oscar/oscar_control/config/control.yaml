@@ -1,12 +1,30 @@
+oscar_v0:
+  oscar_joint_publisher:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
+    extra_joints:
+      - name: 'front_axle_joint'
+
+  oscar_imu_controller:
+    type: imu_sensor_controller/ImuSensorController
+    publish_rate: 50
+
+  oscar_ackermann_controller:
+    type: oscar_control/OscarAckermannController
+    pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+    twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+
 oscar_joint_publisher:
   type: joint_state_controller/JointStateController
   publish_rate: 50
-
+  extra_joints:
+    - name: 'front_axle_joint'
+        
 oscar_imu_controller:
   type: imu_sensor_controller/ImuSensorController
   publish_rate: 50
 
 oscar_ackermann_controller:
-    type: oscar_control/OscarAckermannController
-    pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-    twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+  type: oscar_control/OscarAckermannController
+  pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+  twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]

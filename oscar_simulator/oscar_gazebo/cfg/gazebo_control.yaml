@@ -1,0 +1,9 @@
+gazebo_ros_control:
+  pid_gains:
+    left_wheel_joint:
+      p: 0.00
+    right_wheel_joint:
+      p: 0.00
+    steering_joint:
+      p: 0.00
+    

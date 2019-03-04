@@ -7,6 +7,14 @@
   </include>
 
   <param name="use_gui" value="true"/>
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="TRUE"/>
+    <remap from="robot_description" to="$(arg config)/robot_description" />
+    <!-- can't get namespace to work in gazebo
+	<remap from="/joint_states" to="$(arg config)/joint_states" /> -->
+  </node>
+  
+
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find oscar_viz)/rviz/model.rviz" />
 </launch>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+
+<arg name="camera1_name" value="ueye_enac_z_1" />
+<arg name="camera1_id"   value="112" />
+
+
+<arg name="nodelet_manager_name" value="cam_nodelet_manager" />
+<node name="$(arg nodelet_manager_name)" pkg="nodelet" type="nodelet" args="manager" output="screen" />
+ 
+<include file="$(find smocap)/launch/ueye_cam.launch">
+  <arg name="camera_name" value="$(arg camera1_name)"/>
+  <arg name="camera_id" value="$(arg camera1_id)"/>
+  <arg name="camera_parameters_file" value="$(find smocap)/params/enac_demo_z/cam_1_conf.ini"/>
+  <arg name="camera_parameters_file_alt" value="$(find smocap)/params/enac_demo_z/cams_conf.yaml"/>
+  <arg name="cam_nodelet_id" value="1"/>
+  <arg name="nodelet_manager_name" value="$(arg nodelet_manager_name)"/>
+</include>
+  
+</launch>

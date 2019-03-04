@@ -30,17 +30,17 @@
       <child link="${prefix}_wheel_link" />
       <xacro:insert_block name="joint_pose" />
       <axis xyz="0 1 0" />
-      <dynamics damping="${wheel_joint_damping}" friction="${wheel_joint_friction}"/>
-      <limit effort="1" velocity="10"/>
+      <dynamics damping="${rear_wheel_joint_damping}" friction="${rear_wheel_joint_friction}"/>
+      <limit effort="${rear_wheel_axle_joint_eff_limit}" velocity="${rear_wheel_axle_joint_vel_limit}"/>
     </joint>
 
     <transmission name="${prefix}_wheel_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="${prefix}_wheel_joint">
-	<hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+	<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       </joint>
       <actuator name="${prefix}_actuator">
-        <hardwareInterface>VelocityJointInterface</hardwareInterface>
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
 	<mechanicalReduction>1</mechanicalReduction>
       </actuator>
     </transmission>
@@ -50,11 +50,19 @@
 
   <!-- Front wheel -->
   <xacro:macro name="front_wheel" params="wheel_radius *joint_pose">
+
     <link name="steering_link">
       <visual>
         <origin xyz="0 0 0"/>
         <geometry><cylinder radius="0.0025" length="0.01"/></geometry>
       </visual>
+      <!--<collision>
+	<origin xyz="0 0 0"/>
+        <geometry><cylinder radius="0.0025" length="0.01"/></geometry>
+      </collision>-->
+      <xacro:inertial_cylinder_with_pose mass="0.01" radius="0.0025" height="0.01">
+	<origin xyz="0 0 0"/>
+      </xacro:inertial_cylinder_with_pose> 
     </link>
 
     <joint name="steering_link_joint" type="fixed">
@@ -62,14 +70,20 @@
       <parent link="chassis_link" />
       <child link="steering_link" />
     </joint>
-
     
     <link name="front_axle_carrier_link">
       <visual>
-        <origin xyz="0 0 0"/>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0 "/>
         <geometry><cylinder radius="0.0025" length="0.01"/></geometry>
         <material name="yellow" />
       </visual>
+      <!--<collision>
+	 <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+         <geometry><cylinder radius="0.0025" length="0.01"/></geometry>
+      </collision>-->
+      <xacro:inertial_cylinder_with_pose mass="0.01" radius="0.0025" height="0.01">
+	<origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+      </xacro:inertial_cylinder_with_pose> 
     </link>
 
     
@@ -81,19 +95,37 @@
       <limit lower="${-pi/4}" upper="${pi/4}" effort="${steering_servo_stall_torque}" velocity="${steering_servo_no_load_speed}"/>
     </joint>
 
+    <transmission name="steering_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="steering_joint">
+    	<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="steering_act">
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    
     <link name="front_wheel_link">
       <visual>
+	<xacro:if value="${high_definition_wheel_visual}">
+	  <xacro:property name="wheel_mesh_scale" value="${front_wheel_radius/0.03}" scope="local"/>
+	  <origin xyz="0 0 0" rpy="0 0 ${pi/2}"/>
+          <geometry><mesh scale="1. ${wheel_mesh_scale} ${wheel_mesh_scale}" filename="package://common_robots/meshes/wheel_60.dae"/></geometry>
+	</xacro:if>
 	<xacro:unless value="${high_definition_wheel_visual}">
 	  <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
           <geometry><cylinder radius="${front_wheel_radius}" length="${front_wheel_width}"/></geometry>
           <material name="transp_yellow" />
 	</xacro:unless>
-	<xacro:if value="${high_definition_wheel_visual}">
-	  <xacro:property name="wheel_mesh_scale" value="${wheel_radius/0.03}" />
-	  <origin xyz="0 0 0" rpy="0 0 ${pi/2}"/>
-          <geometry><mesh scale="1. ${wheel_mesh_scale} ${wheel_mesh_scale}" filename="package://common_robots/meshes/wheel_60.dae"/></geometry>
-	</xacro:if>
       </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${front_wheel_radius}" length="${front_wheel_width}"/></geometry>
+      </collision>
+      <xacro:inertial_cylinder_with_pose mass="${wheel_mass}" radius="${front_wheel_radius}" height="${front_wheel_width}">
+	<origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+      </xacro:inertial_cylinder_with_pose> 
     </link>
 
     <joint name="front_axle_joint" type="continuous">
@@ -103,7 +135,17 @@
       <limit effort="${front_wheel_axle_joint_eff_limit}" velocity="${front_wheel_axle_joint_vel_limit}"/>
       <dynamic damping="${front_wheel_axle_joint_damping}" friction="{front_wheel_axle_joint_friction}"/>
     </joint>
-    
+
+    <transmission name="font_wheel_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="front_axle_joint">
+	<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="front_axle__actuator">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+	<mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
   </xacro:macro>
   
 </robot>

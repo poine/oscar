@@ -9,10 +9,13 @@ namespace oscar_controller {
 #define __NAME "oscar_ackermann_controller"
 
   // Geometry
-#define WHEEL_BASE   0.1
+#define WHEEL_BASE   0.09
+  //#define WHEEL_BASE   0.1
 #define WHEEL_RADIUS 0.03
-#define GEOM_L 0.1
-#define GEOM_D 0.1
+  //#define GEOM_L 0.1
+  //#define GEOM_D 0.1
+#define GEOM_L 0.08
+#define GEOM_D 0.09
 
   // Odometry
 #define VELOCITY_ROLLING_WINDOW_SIZE 10
@@ -105,7 +108,7 @@ namespace oscar_controller {
 #else
     compute_control(now);
 #endif
-    steering_joint_.setCommand(steering_servo_);
+    steering_joint_.setCommand(steering_angle_);
     left_wheel_joint_.setCommand(left_wheel_duty_);
     right_wheel_joint_.setCommand(right_wheel_duty_);
     
@@ -132,19 +135,17 @@ namespace oscar_controller {
   }
 
 #define DUTY_OF_WHEEL_RVEL(_rv) (_rv*0.03)
-#define STS_A1  0.938104
-//#define STS_A0 -0.138223
-#define STS_A0 0.05
+
   
   void OscarAckermannController::compute_control(const ros::Time&) {
 
     double virtual_steering_angle, speed;
     if (input_manager_.rt_commands_.mode == 0) {
-      if (input_manager_.rt_commands_.lin == 0)
+      speed =  input_manager_.rt_commands_.lin;
+      if (abs(speed) <= 1e-6)
 	virtual_steering_angle = 0.;
       else
-	virtual_steering_angle = std::atan(input_manager_.rt_commands_.ang/input_manager_.rt_commands_.lin* GEOM_L);
-      speed =  input_manager_.rt_commands_.lin;
+	virtual_steering_angle = std::atan(input_manager_.rt_commands_.ang/speed* GEOM_L);
     }
     else {
       virtual_steering_angle = input_manager_.rt_commands_.steering;
@@ -152,7 +153,7 @@ namespace oscar_controller {
     }
 					 
     steering_angle_ = virtual_steering_angle; // mechanics is supposedly doing the trick...
-    steering_servo_ = STS_A1 * steering_angle_ + STS_A0;
+    //steering_servo_ = STS_A1 * steering_angle_ + STS_A0;
 
     
     //double wheels_rvel = speed / WHEEL_RADIUS;

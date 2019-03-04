@@ -1,33 +1,32 @@
 <?xml version="1.0"?>
 <robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
-
   
- 
-  <xacro:property name="PI" value="3.1415926535897931" />
-  
-  <xacro:property name="chassis_length" value="0.12" />
+  <xacro:property name="chassis_length" value="0.08" />
   <xacro:property name="chassis_width"  value="0.065" />
   <xacro:property name="chassis_height" value="0.01" />
-  <xacro:property name="chassis_mass"   value="0.18" />
+  <xacro:property name="chassis_mass"   value="0.20" />
   <xacro:property name="chassis_dx"     value="0.04" />
 
   <xacro:property name="left_wheel_radius"  value="0.03" />
   <xacro:property name="right_wheel_radius" value="0.03" />
-  <xacro:property name="wheel_width"  value="0.01" />
+  <xacro:property name="wheel_width"  value="0.02" />
   <xacro:property name="wheel_track"  value="0.09" />
-  <xacro:property name="wheel_mass"   value="0.01" />
-  <xacro:property name="wheel_joint_damping" value="0.01" />
-  <xacro:property name="wheel_joint_friction" value="0.01" />
+  <xacro:property name="wheel_mass"   value="0.02" />
+  <xacro:property name="steering_servo_no_load_speed" value="2.5" />
+  <xacro:property name="rear_wheel_axle_joint_eff_limit" value="10.0" />
+  <xacro:property name="rear_wheel_axle_joint_vel_limit" value="20.0" />
+  <xacro:property name="rear_wheel_joint_damping"  value="0.01" />
+  <xacro:property name="rear_wheel_joint_friction" value="0.01" />
 
   <xacro:property name="front_wheel_radius"  value="0.03" />
   <xacro:property name="front_wheel_L"       value="0.08" />
-  <xacro:property name="front_wheel_width"   value="0.01" />
-  <xacro:property name="steering_servo_stall_torque" value="1.0" />
-  <xacro:property name="steering_servo_no_load_speed" value="5.0" />
-  <xacro:property name="front_wheel_axle_joint_eff_limit" value="5.0" />
-  <xacro:property name="front_wheel_axle_joint_vel_limit" value="5.0" />
-  <xacro:property name="front_wheel_axle_joint_damping" value="0.01" />
-  <xacro:property name="front_wheel_axle_joint_friction" value="0.01" />
+  <xacro:property name="front_wheel_width"   value="0.02" />
+  <xacro:property name="steering_servo_stall_torque" value="10.0" />
+  <xacro:property name="steering_servo_no_load_speed" value="2.5" />
+  <xacro:property name="front_wheel_axle_joint_eff_limit" value="10.0" />
+  <xacro:property name="front_wheel_axle_joint_vel_limit" value="20.0" />
+  <xacro:property name="front_wheel_axle_joint_damping"  value="0.00001" />
+  <xacro:property name="front_wheel_axle_joint_friction" value="0.00001" />
    
   <!-- Inertia macros -->
   <xacro:include filename="$(find common_robots)/urdf/inertias.urdf.xacro" />
@@ -45,7 +44,10 @@
       <geometry><box size="${chassis_length} ${chassis_width} ${chassis_height}"/></geometry>
       <material name="transp_green"/>
     </visual>
-
+    <!-- <collision> -->
+    <!--   <origin xyz="${chassis_dx} 0.00  0.00" rpy="0 0 0"/> -->
+    <!--   <geometry><box size="${chassis_length} ${chassis_width} ${chassis_height}"/></geometry> -->
+    <!-- </collision> -->
     <xacro:inertial_cuboid_with_pose mass="${chassis_mass}" x_length="${chassis_length}" y_length="${chassis_width}" z_length="${chassis_height}">
       <origin xyz="${chassis_dx} 0.00  0.00" rpy="0 0 0"/>
     </xacro:inertial_cuboid_with_pose> 
@@ -69,4 +71,15 @@
     <origin xyz="${front_wheel_L} 0 0" rpy="0 0 0" />
   </xacro:front_wheel>
 
+  <!-- Sensors -->
+  <link name="imu_link">
+    <visual><geometry><sphere radius="0.0025"/></geometry></visual>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="imu_link" />
+  </joint>
+  
+  
 </robot>

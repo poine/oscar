@@ -1,9 +1,17 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="config" default="oscar_v0" />
+  <arg name="load_urdf" default="true" />
 
-  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find oscar_description)/urdf/$(arg config).urdf.xacro" />
-
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+  <group if="$(arg load_urdf)">
+    <param name="$(arg config)/robot_description" command="$(find xacro)/xacro --inorder $(find oscar_description)/urdf/$(arg config).urdf.xacro" />
+  </group>
+  
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+    <remap from="robot_description" to="$(arg config)/robot_description" />
+    <!-- Can't get namespace to work in gazebo
+	 <remap from="joint_states" to="$(arg config)/joint_states" />
+    -->
+  </node>
 
 </launch>

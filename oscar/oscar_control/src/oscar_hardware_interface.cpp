@@ -12,9 +12,6 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 
 // Electrical hookups
 #define STEERING_SERVO_CH               1
-#define STEERING_SERVO_NEUTRAL          0.
-//-0.11
-#define STEERING_SERVO_POLARITY        -1
 #define MOTOR_CHANNEL_L                 1
 #define MOTOR_CHANNEL_R                 2
 #define MOTOR_POLARITY_L               -1
@@ -125,7 +122,7 @@ bool OscarHardwareInterface::start() {
   // Servos
   rc_servo_init();
   rc_servo_power_rail_en(1);
-  rc_servo_send_pulse_normalized( STEERING_SERVO_CH, STEERING_SERVO_NEUTRAL );
+  rc_servo_send_pulse_normalized( STEERING_SERVO_CH, 0.);
   
   rc_set_state(RUNNING);
   return true;
@@ -149,16 +146,18 @@ void OscarHardwareInterface::read() {
  *
  *
  *******************************************************************************/
+#define STS_A1  -0.938104
+#define STS_A0 -0.05
 void OscarHardwareInterface::write() {
 
   float dutyL =  joint_effort_command_[0];
   float dutyR =  joint_effort_command_[1];
-  float steering = joint_position_command_[2];
+  float steering = STS_A1 * joint_position_command_[2] + STS_A0;
   //ROS_INFO(" write HW %f %f %f", dutyL, dutyR, steering);
   
   rc_motor_set(MOTOR_CHANNEL_L, MOTOR_POLARITY_L * dutyL);
   rc_motor_set(MOTOR_CHANNEL_R, MOTOR_POLARITY_R * dutyR);
-  rc_servo_send_pulse_normalized( STEERING_SERVO_CH, STEERING_SERVO_NEUTRAL+steering*STEERING_SERVO_POLARITY );
+  rc_servo_send_pulse_normalized( STEERING_SERVO_CH, steering);
 }
 
 /*******************************************************************************

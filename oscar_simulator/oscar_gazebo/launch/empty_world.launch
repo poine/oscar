@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_name" default="oscar_v0"/>
+  <arg name="world_name" default="worlds/empty.world"/>
+  <arg name="robot_initial_loc" default="-x 0 -y 0 -z 0.02"/>
+  <arg name="robot_initial_ori" default="-R 0 -P 0 -Y 0"/>
+  <arg name="gui" default="true"/>
+
+<!-- start gazebo simulation -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world_name)"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="$(arg robot_name)/robot_description"
+	 command="$(find xacro)/xacro --inorder '$(find oscar_gazebo)/urdf/oscar.gazebo.urdf.xacro'" />
+
+  <!--  spawn the robot in gazebo -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -model $(arg robot_name) -param $(arg robot_name)/robot_description $(arg robot_initial_loc) $(arg robot_initial_ori)" />
+
+
+  
+  <rosparam command="load" file="$(find oscar_gazebo)/cfg/gazebo_control.yaml" />
+  <include file="$(find oscar_bringup)/launch/robot.launch">
+    <arg name="start_hardware" value="false"/>
+    <arg name="load_urdf" value="false"/>
+    <arg name="start_description" value="true"/>
+    <arg name="start_teleop" value="true"/>
+    <arg name="start_multimaster" value="false"/>
+  </include>
+  
+    
+</launch>
