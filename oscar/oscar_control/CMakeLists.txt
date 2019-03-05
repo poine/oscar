@@ -12,6 +12,10 @@ add_compile_options(-faligned-new -Wno-psabi)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  message_generation
   controller_interface
   controller_manager
   ackermann_msgs
@@ -53,8 +57,10 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate messages in the 'msg' folder
 add_message_files(
-   FILES
-   oac_RawOdom.msg
+  DIRECTORY msg
+  FILES
+  oac_RawOdom.msg
+  msg_debug_io.msg
 )
 
 ## Generate services in the 'srv' folder

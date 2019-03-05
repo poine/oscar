@@ -45,6 +45,7 @@ namespace oscar_controller {
       oscar_controller::InputManager   input_manager_;
       oscar_controller::Odometry       odometry_;
       oscar_controller::Publisher      publisher_;
+      oscar_controller::DebugIOPublisher debug_io_publisher_;
       oscar_controller::OACRawOdomPublisher raw_odom_publisher_;
 
       // measured values

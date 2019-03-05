@@ -4,7 +4,59 @@
 #include <tf/transform_datatypes.h>
 
 namespace oscar_controller {
+  //
+  // Publish input/output 
+  //
+  DebugIOPublisher::DebugIOPublisher() {}
 
+  void DebugIOPublisher::init(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh) {
+    pub_.reset(new realtime_tools::RealtimePublisher<oscar_control::msg_debug_io>(controller_nh, "debug_io", 100));
+    nb_data_ = 0;
+  }
+
+  void DebugIOPublisher::publish(const double lw_angle, const double rw_angle,
+				 const double lw_rvel, const double rw_rvel,
+				 const int8_t lw_pwm, const int8_t rw_pwm,
+				 const double fw_steering,
+				 const ros::Time& now) {
+    lw_angle_[nb_data_] = lw_angle; rw_angle_[nb_data_] = rw_angle;
+    lw_rvel_[nb_data_] = lw_rvel;   rw_rvel_[nb_data_] = rw_rvel;
+    lw_pwm_[nb_data_] = lw_pwm; rw_pwm_[nb_data_] = rw_pwm;
+    fw_steering_[nb_data_] = fw_steering;
+    stamp_[nb_data_] = now;
+    nb_data_ += 1;
+    if (nb_data_ >= MIN_SENSOR_FOR_PUBLISH) {
+      if (pub_->trylock()) {
+	memcpy(pub_->msg_.stamp.elems, stamp_, nb_data_*sizeof(ros::Time));
+	memcpy(pub_->msg_.lw_angle.elems, lw_angle_, nb_data_*sizeof(double));
+	memcpy(pub_->msg_.rw_angle.elems, rw_angle_, nb_data_*sizeof(double));
+	memcpy(pub_->msg_.lw_rvel.elems, lw_rvel_, nb_data_*sizeof(double));
+	memcpy(pub_->msg_.rw_rvel.elems, rw_rvel_, nb_data_*sizeof(double));
+	memcpy(pub_->msg_.lw_pwm.elems, lw_pwm_, nb_data_*sizeof(int8_t));
+	memcpy(pub_->msg_.rw_pwm.elems, rw_pwm_, nb_data_*sizeof(int8_t));
+	memcpy(pub_->msg_.fw_steering.elems, fw_steering_, nb_data_*sizeof(double));
+	pub_->msg_.nb_data = nb_data_;
+	pub_->unlockAndPublish();
+	nb_data_ = 0;
+      }
+      else {
+	if (nb_data_ < MAX_SENSOR_LEN) {
+	  ROS_INFO("#### DebugIOPublisher::publish() could no publish... will retry");
+	}
+	else {
+	  ROS_INFO("#### DebugIOPublisher::publish() could no publish... discarding one");
+	  nb_data_ -= 1;
+	}
+      }
+    }
+  }
+
+
+  
+
+  //
+  // Publish odometry 
+  //
   Publisher::Publisher():
       odom_frame_id_("odom")
     , base_frame_id_("base_link")

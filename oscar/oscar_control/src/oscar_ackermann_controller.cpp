@@ -64,16 +64,17 @@ namespace oscar_controller {
   {
     ROS_INFO_STREAM_NAMED(__NAME, "in OscarAckermannController::init");
     hw_ = static_cast<OscarHardwareInterface*>(hw);
-    hardware_interface::EffortJointInterface* e = hw->get<hardware_interface::EffortJointInterface>();
-    left_wheel_joint_  = e->getHandle("left_wheel_joint");
-    right_wheel_joint_ = e->getHandle("right_wheel_joint");
+    hardware_interface::EffortJointInterface* e1 = hw->get<hardware_interface::EffortJointInterface>();
+    left_wheel_joint_  = e1->getHandle("left_wheel_joint");
+    right_wheel_joint_ = e1->getHandle("right_wheel_joint");
     hardware_interface::PositionJointInterface* e2 = hw->get<hardware_interface::PositionJointInterface>();
     steering_joint_ = e2->getHandle("steering_joint");
 
     input_manager_.init(hw, controller_nh);
     odometry_.init(WHEEL_BASE, VELOCITY_ROLLING_WINDOW_SIZE);
     publisher_.init(root_nh, controller_nh);
-    raw_odom_publisher_.init(root_nh, controller_nh);
+    debug_io_publisher_.init(root_nh, controller_nh);
+    //raw_odom_publisher_.init(root_nh, controller_nh);
     return true;
   }
 
@@ -115,7 +116,13 @@ namespace oscar_controller {
     publisher_.publish(odometry_.getHeading(), odometry_.getX(), odometry_.getY(), odometry_.getLinear(), odometry_.getAngular(), now);
     double left_wheel_angle = left_wheel_joint_.getPosition();
     double right_wheel_angle = right_wheel_joint_.getPosition();
-    raw_odom_publisher_.publish(left_wheel_angle, right_wheel_angle, steering_angle_, now);
+    //raw_odom_publisher_.publish(left_wheel_angle, right_wheel_angle, steering_angle_, now);
+
+    debug_io_publisher_.publish(left_wheel_angle, right_wheel_angle,
+				left_wheel_rvel_, right_wheel_rvel_,
+				left_wheel_duty_*128, right_wheel_duty_*128,
+				steering_angle_,
+				now);
   }
   
   /*******************************************************************************
@@ -139,27 +146,28 @@ namespace oscar_controller {
   
   void OscarAckermannController::compute_control(const ros::Time&) {
 
-    double virtual_steering_angle, speed;
-    if (input_manager_.rt_commands_.mode == 0) {
-      speed =  input_manager_.rt_commands_.lin;
-      if (abs(speed) <= 1e-6)
+    double virtual_steering_angle, speed_sp;
+    double vl, vr;
+    if (input_manager_.rt_commands_.mode == 0) { // twist message
+      speed_sp =  input_manager_.rt_commands_.lin;
+      if (abs(speed_sp) <= 1e-6)
 	virtual_steering_angle = 0.;
       else
-	virtual_steering_angle = std::atan(input_manager_.rt_commands_.ang/speed* GEOM_L);
+	virtual_steering_angle = std::atan(input_manager_.rt_commands_.ang/speed_sp* GEOM_L);
+      double dv = input_manager_.rt_commands_.ang * GEOM_D / 2;
+      vl = speed_sp - dv; vr = speed_sp + dv;
     }
-    else {
+    else {                                       // ackermann message
       virtual_steering_angle = input_manager_.rt_commands_.steering;
-      speed =  input_manager_.rt_commands_.speed;
+      speed_sp =  input_manager_.rt_commands_.speed;
+      vl = speed_sp;// * GEOM_L/ (GEOM_L - GEOM_D/2*tan(virtual_steering_angle));
+      vr = speed_sp;// * GEOM_L/ (GEOM_L + GEOM_D/2*tan(virtual_steering_angle));
     }
 					 
     steering_angle_ = virtual_steering_angle; // mechanics is supposedly doing the trick...
-    //steering_servo_ = STS_A1 * steering_angle_ + STS_A0;
-
     
-    //double wheels_rvel = speed / WHEEL_RADIUS;
-    double dv = input_manager_.rt_commands_.ang * GEOM_D / 2;
-    double left_wheel_rvel_sp  = ( speed - dv ) / WHEEL_RADIUS;
-    double right_wheel_rvel_sp = ( speed + dv ) / WHEEL_RADIUS;
+    double left_wheel_rvel_sp  = vl / WHEEL_RADIUS;
+    double right_wheel_rvel_sp = vr / WHEEL_RADIUS;
 
     double left_wheel_err = left_wheel_rvel_sp - left_wheel_rvel_;
     double right_wheel_err = right_wheel_rvel_sp - right_wheel_rvel_;
