@@ -25,7 +25,7 @@ namespace oscar_controller {
     void init(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
     void publish(const double lw_angle, const double rw_angle,
 		 const double lw_rvel, const double rw_rvel,
-		 const int8_t lw_pwm, const int8_t rw_pwm, const double fw_steering,
+		 const double lw_pwm, const double rw_pwm, const double fw_steering,
 		 const ros::Time& now);
 
   private:
@@ -37,8 +37,8 @@ namespace oscar_controller {
     double lw_rvel_[MAX_SENSOR_LEN];
     double rw_rvel_[MAX_SENSOR_LEN];
 
-    int8_t lw_pwm_[MAX_SENSOR_LEN];
-    int8_t rw_pwm_[MAX_SENSOR_LEN];
+    double lw_pwm_[MAX_SENSOR_LEN];
+    double rw_pwm_[MAX_SENSOR_LEN];
     double fw_steering_[MAX_SENSOR_LEN];
   };
 

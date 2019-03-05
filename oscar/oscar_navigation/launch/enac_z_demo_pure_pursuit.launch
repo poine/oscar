@@ -11,7 +11,8 @@
 
   <arg name="map" default="$(find rosmip_worlds)/maps/expe_z/track_ethz_cam1_new.yaml" />
   <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_new.npz" />
-
+  <arg name="vel_setpoint" default="0.6"/>
+    
   <!--  ****** Maps *****  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
     <param name="frame_id" value="/map"/>
@@ -28,13 +29,15 @@
 
   </include>
   
-  <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py">
+  <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
     <param name="twist_cmd_topic" value="oscar_ackermann_controller/cmd_vel"/>
     <param name="path_filename" value="$(arg path_filename)"/>
-    <param name="vel_setpoint" value="0.6"/>
+    <param name="vel_setpoint" value="$(arg vel_setpoint)"/>
     <param name="look_ahead" value="0.4"/>
   </node>
   
-  
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find oscar_viz)/rviz/navigation.rviz" />
+
 
 </launch>

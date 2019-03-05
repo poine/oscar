@@ -13,6 +13,7 @@
   <arg name="map" default="$(find rosmip_worlds)/maps/expe_z/track_ethz_cam1_new.yaml" />
   <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_new.npz" />
 
+  
   <!--  ****** Maps *****  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
     <param name="frame_id" value="/map"/>

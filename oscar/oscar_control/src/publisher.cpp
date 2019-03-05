@@ -16,7 +16,7 @@ namespace oscar_controller {
 
   void DebugIOPublisher::publish(const double lw_angle, const double rw_angle,
 				 const double lw_rvel, const double rw_rvel,
-				 const int8_t lw_pwm, const int8_t rw_pwm,
+				 const double lw_pwm, const double rw_pwm,
 				 const double fw_steering,
 				 const ros::Time& now) {
     lw_angle_[nb_data_] = lw_angle; rw_angle_[nb_data_] = rw_angle;
@@ -32,8 +32,8 @@ namespace oscar_controller {
 	memcpy(pub_->msg_.rw_angle.elems, rw_angle_, nb_data_*sizeof(double));
 	memcpy(pub_->msg_.lw_rvel.elems, lw_rvel_, nb_data_*sizeof(double));
 	memcpy(pub_->msg_.rw_rvel.elems, rw_rvel_, nb_data_*sizeof(double));
-	memcpy(pub_->msg_.lw_pwm.elems, lw_pwm_, nb_data_*sizeof(int8_t));
-	memcpy(pub_->msg_.rw_pwm.elems, rw_pwm_, nb_data_*sizeof(int8_t));
+	memcpy(pub_->msg_.lw_pwm.elems, lw_pwm_, nb_data_*sizeof(double));
+	memcpy(pub_->msg_.rw_pwm.elems, rw_pwm_, nb_data_*sizeof(double));
 	memcpy(pub_->msg_.fw_steering.elems, fw_steering_, nb_data_*sizeof(double));
 	pub_->msg_.nb_data = nb_data_;
 	pub_->unlockAndPublish();

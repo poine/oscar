@@ -120,7 +120,7 @@ namespace oscar_controller {
 
     debug_io_publisher_.publish(left_wheel_angle, right_wheel_angle,
 				left_wheel_rvel_, right_wheel_rvel_,
-				left_wheel_duty_*128, right_wheel_duty_*128,
+				left_wheel_duty_, right_wheel_duty_,
 				steering_angle_,
 				now);
   }
