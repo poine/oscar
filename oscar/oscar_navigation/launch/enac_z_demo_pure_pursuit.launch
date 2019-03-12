@@ -6,13 +6,16 @@
     <param name="sync_hosts" value="ray"/>
     <rosparam param="sync_topics"> ['/smocap/status', '/smocap/est_marker', '/smocap/cams_fov'] </rosparam>
     <rosparam param="sync_nodes"> ['/smocap_node'] </rosparam>
+    <rosparam param="ignore_topics"> ['/tf', '/tf_static'] </rosparam>
   </node>
 
 
   <arg name="map" default="$(find rosmip_worlds)/maps/expe_z/track_ethz_cam1_new.yaml" />
   <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_new.npz" />
   <arg name="vel_setpoint" default="0.6"/>
-    
+  <arg name="look_ahead" default="0.4"/>
+  <arg name="run_calib" default="false"/>
+  
   <!--  ****** Maps *****  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
     <param name="frame_id" value="/map"/>
@@ -28,14 +31,22 @@
   <include file="$(find oscar_navigation)/launch/robot_localization_ekf.launch">
 
   </include>
-  
-  <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
-    <param name="twist_cmd_topic" value="oscar_ackermann_controller/cmd_vel"/>
-    <param name="path_filename" value="$(arg path_filename)"/>
-    <param name="vel_setpoint" value="$(arg vel_setpoint)"/>
-    <param name="look_ahead" value="0.4"/>
-  </node>
-  
+
+
+  <group unless="$(arg run_calib)">
+    <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
+      <param name="twist_cmd_topic" value="oscar_ackermann_controller/cmd_vel"/>
+      <!--<param name="ack_cmd_topic" value="oscar_ackermann_controller/cmd_ack"/>-->
+      <param name="path_filename" value="$(arg path_filename)"/>
+      <param name="vel_setpoint" value="$(arg vel_setpoint)"/>
+      <param name="look_ahead" value="$(arg look_ahead)"/>
+    </node>
+  </group>
+  <group if="$(arg run_calib)">
+    <node name="calib" pkg="oscar_control" type="calibrate_lvel.py" output="screen">
+    </node>
+  </group>
+    
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find oscar_viz)/rviz/navigation.rviz" />
 

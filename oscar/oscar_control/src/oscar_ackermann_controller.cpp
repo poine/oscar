@@ -1,8 +1,5 @@
 #include <oscar_control/oscar_ackermann_controller.h>
 
-// Directly transmit setpoints to the hardware interface (for calibration)
-//#define BYPASS_CONTROL
-
 namespace oscar_controller {
 
   
@@ -26,6 +23,13 @@ namespace oscar_controller {
 #define WHEEL_KD 0
 #define WHEEL_TF 0.007
 #define WHEEL_DT 0.010
+
+#define LVEL_KP 0
+#define LVEL_KI 0.01
+#define LVEL_KD 0
+#define LVEL_TF 0.007
+#define LVEL_DT 0.010
+
   
   /*******************************************************************************
    *
@@ -43,6 +47,9 @@ namespace oscar_controller {
     rc_filter_pid(&right_wheel_pid_, WHEEL_KP, WHEEL_KI, WHEEL_KD, WHEEL_TF, WHEEL_DT);
     //rc_enable_saturation(&D1_, -1.0, 1.0);
     //rc_enable_soft_start(&D1_, SOFT_START_SEC);
+
+    lvel_pid_ = rc_filter_empty();
+    rc_filter_pid(&lvel_pid_, LVEL_KP, LVEL_KI, LVEL_KD, LVEL_TF, LVEL_DT);
   }
 
   /*******************************************************************************
@@ -101,14 +108,9 @@ namespace oscar_controller {
     input_manager_.update(now);
     odometry_.update(left_wheel_rvel_, right_wheel_rvel_, steering_joint_.getPosition(), now);
     
-    
-#ifdef BYPASS_CONTROL
-    left_wheel_duty_  = input_manager_.rt_commands_.lin;
-    right_wheel_duty_ = input_manager_.rt_commands_.lin;
-    steering_angle_   = input_manager_.rt_commands_.ang;
-#else
     compute_control(now);
-#endif
+    //compute_control_alt(now);
+
     steering_joint_.setCommand(steering_angle_);
     left_wheel_joint_.setCommand(left_wheel_duty_);
     right_wheel_joint_.setCommand(right_wheel_duty_);
@@ -160,8 +162,8 @@ namespace oscar_controller {
     else {                                       // ackermann message
       virtual_steering_angle = input_manager_.rt_commands_.steering;
       speed_sp =  input_manager_.rt_commands_.speed;
-      vl = speed_sp;// * GEOM_L/ (GEOM_L - GEOM_D/2*tan(virtual_steering_angle));
-      vr = speed_sp;// * GEOM_L/ (GEOM_L + GEOM_D/2*tan(virtual_steering_angle));
+      vl = speed_sp * GEOM_L/ (GEOM_L - GEOM_D/2*tan(virtual_steering_angle));
+      vr = speed_sp * GEOM_L/ (GEOM_L + GEOM_D/2*tan(virtual_steering_angle));
     }
 					 
     steering_angle_ = virtual_steering_angle; // mechanics is supposedly doing the trick...
@@ -179,7 +181,11 @@ namespace oscar_controller {
     right_wheel_duty_ = motor_precommand(right_wheel_rvel_sp) + right_wheel_feedback;
   }
 
-
+  void OscarAckermannController::compute_control_alt(const ros::Time&) {
+    left_wheel_duty_  = input_manager_.rt_commands_.speed;
+    right_wheel_duty_ = input_manager_.rt_commands_.speed;
+    steering_angle_   = input_manager_.rt_commands_.steering;
+  }
   
   PLUGINLIB_EXPORT_CLASS(oscar_controller::OscarAckermannController, controller_interface::ControllerBase);
 }

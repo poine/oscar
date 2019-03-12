@@ -3,7 +3,8 @@
 
   <xacro:property name="robot_name" default="oscar_v0" />
   <xacro:include filename="$(find oscar_description)/urdf/${robot_name}.urdf.xacro" />
-
+  <xacro:include filename="$(find common_simulations)/urdf/sensors_gazebo.urdf.xacro" />
+  
   <xacro:property name="wheel_mu1" default="10000" />
   <xacro:property name="wheel_mu2" default="10000" />
 
@@ -13,7 +14,8 @@
   <gazebo reference="steering_link"><material>Gazebo/Red</material></gazebo>
   <gazebo reference="front_axle_carrier_link"><material>Gazebo/Blue</material></gazebo>
   <gazebo reference="imu_link"><material>Gazebo/Red</material></gazebo>
-
+  <gazebo reference="camera_link"><material>Gazebo/Red</material></gazebo>
+  
   <gazebo reference="left_wheel_link">
     <mu1>${wheel_mu1}</mu1>
     <mu2>${wheel_mu2}</mu2>
@@ -89,8 +91,11 @@
   </gazebo>
   -->
 
-
-  
+ <!-- Camera -->
+ <xacro:if value="${use_eachine_camera}">
+   <xacro:gazebo_eachine_camera cam_name="camera1"/>
+ </xacro:if>
+   
   <!-- Ground Truth  -->
   <gazebo>
     <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">

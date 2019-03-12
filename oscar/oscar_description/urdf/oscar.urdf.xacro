@@ -28,10 +28,11 @@
   <xacro:property name="front_wheel_axle_joint_damping"  value="0.00001" />
   <xacro:property name="front_wheel_axle_joint_friction" value="0.00001" />
    
-  <!-- Inertia macros -->
+  <!-- Common macros -->
   <xacro:include filename="$(find common_robots)/urdf/inertias.urdf.xacro" />
   <xacro:include filename="$(find common_robots)/urdf/materials.urdf" />
-  
+  <xacro:include filename="$(find common_robots)/urdf/sensors.urdf.xacro" />
+
   <!-- Car Parts -->
   <xacro:include filename="$(find oscar_description)/urdf/wheels.urdf.xacro" />
   
@@ -71,7 +72,7 @@
     <origin xyz="${front_wheel_L} 0 0" rpy="0 0 0" />
   </xacro:front_wheel>
 
-  <!-- Sensors -->
+  <!-- IMU -->
   <link name="imu_link">
     <visual><geometry><sphere radius="0.0025"/></geometry></visual>
   </link>
@@ -80,6 +81,20 @@
     <parent link="base_link" />
     <child link="imu_link" />
   </joint>
-  
+
+  <!-- Infrared Marker -->
+  <xacro:if value="${use_smocap_ir_marker}">
+    <xacro:cs_smocap_ir_marker>
+      <origin xyz="0 0 0.06" rpy="0 0 0" />
+    </xacro:cs_smocap_ir_marker>
+  </xacro:if>
+    
+  <!-- Camera -->
+  <xacro:if value="${use_eachine_camera}">
+    <xacro:property name="cam_look_down_deg" value="25." />
+    <xacro:cs_camera_eachine>
+      <origin xyz="0.09 0 0.04" rpy="0 ${cam_look_down_deg/180*pi}} 0" />
+    </xacro:cs_camera_eachine>
+  </xacro:if>
   
 </robot>
