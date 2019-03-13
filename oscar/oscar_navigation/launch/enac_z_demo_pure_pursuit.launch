@@ -11,7 +11,7 @@
 
 
   <arg name="map" default="$(find rosmip_worlds)/maps/expe_z/track_ethz_cam1_new.yaml" />
-  <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_new.npz" />
+  <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_cw.npz" />
   <arg name="vel_setpoint" default="0.6"/>
   <arg name="look_ahead" default="0.4"/>
   <arg name="run_calib" default="false"/>
