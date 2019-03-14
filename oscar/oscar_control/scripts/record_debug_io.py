@@ -12,6 +12,7 @@ class Node:
         rospy.init_node('record_debug_io')
         rospy.Subscriber('/oscar_ackermann_controller/debug_io', oscar_control.msg.msg_debug_io, self.debug_io_callback)
         self.lw_angle, self.rw_angle = [], []
+        self.lw_rvel, self.rw_rvel = [], []
         self.lw_pwm, self.rw_pwm = [], []
         self.io_stamp = []
 
@@ -24,6 +25,8 @@ class Node:
     def debug_io_callback(self, msg):
         self.lw_angle += msg.lw_angle[:msg.nb_data]
         self.rw_angle += msg.rw_angle[:msg.nb_data]
+        self.lw_rvel += msg.lw_rvel[:msg.nb_data]
+        self.rw_rvel += msg.rw_rvel[:msg.nb_data]
         self.lw_pwm += msg.lw_pwm[:msg.nb_data]
         self.rw_pwm += msg.rw_pwm[:msg.nb_data]
         self.io_stamp += [_s.to_sec() for _s in msg.stamp[:msg.nb_data]]
@@ -45,6 +48,8 @@ class Node:
         np.savez(filename,
                  encoders_lw = np.array(self.lw_angle),
                  encoders_rw = np.array(self.rw_angle),
+                 encoders_lw_rvel = np.array(self.lw_rvel),
+                 encoders_rw_rvel = np.array(self.rw_rvel),
                  pwm_lw = np.array(self.lw_pwm),
                  pwm_rw = np.array(self.rw_pwm),
                  encoders_stamp = np.array(self.io_stamp),

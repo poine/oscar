@@ -19,7 +19,7 @@ class OscarHardwareInterface : public hardware_interface::RobotHW
   virtual ~OscarHardwareInterface();
 
   bool start();
-  void read();
+  void read(ros::Time now);
   void write();
   bool shutdown();
   void switch_motors_on()  { rc_motor_standby(0); }
@@ -47,7 +47,11 @@ class OscarHardwareInterface : public hardware_interface::RobotHW
   hardware_interface::ImuSensorInterface     imu_sensor_interface_;
 
   rc_mpu_data_t rc_mpu_data_;
+  // Mechanics
   double gear_enc_res_;
+  // Timing
+  ros::Time last_read_stamp_;
+  ros::Duration last_period_;
 };
 
 

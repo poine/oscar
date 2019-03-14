@@ -47,11 +47,11 @@ OscarHardwareInterface::OscarHardwareInterface():
     joint_position_command_[i] = 0.;
     js_interface_.registerHandle(hardware_interface::JointStateHandle(
         joint_name_[i], &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]));
-    if (i<2) {
+    if (i<2) {     // motors: effort_command
       ej_interface_.registerHandle(hardware_interface::JointHandle(
 	js_interface_.getHandle(joint_name_[i]), &joint_effort_command_[i]));
     }
-    else {
+    else {         // servo: position command
       pj_interface_.registerHandle(hardware_interface::JointHandle(
         js_interface_.getHandle(joint_name_[i]), &joint_position_command_[i]));
     }
@@ -122,9 +122,10 @@ bool OscarHardwareInterface::start() {
   // Servos
   rc_servo_init();
   rc_servo_power_rail_en(1);
-  rc_servo_send_pulse_normalized( STEERING_SERVO_CH, 0.);
+  rc_servo_send_pulse_normalized(STEERING_SERVO_CH, 0.);
   
   rc_set_state(RUNNING);
+  last_read_stamp_ = ros::Time::now();
   return true;
 }
 
@@ -132,11 +133,14 @@ bool OscarHardwareInterface::start() {
  *
  *
  *******************************************************************************/
-void OscarHardwareInterface::read() {
+void OscarHardwareInterface::read(ros::Time now) {
   double left_wheel_angle = rc_encoder_read(ENCODER_CHANNEL_L) * 2 * M_PI / (ENCODER_POLARITY_L * gear_enc_res_);
   double right_wheel_angle = rc_encoder_read(ENCODER_CHANNEL_R) * 2 * M_PI / (ENCODER_POLARITY_R * gear_enc_res_);
-  joint_velocity_[0] = (left_wheel_angle  - joint_position_[0]) / IMU_DT;
-  joint_velocity_[1] = (right_wheel_angle - joint_position_[1]) / IMU_DT;
+  last_period_ = now - last_read_stamp_;
+  last_read_stamp_ = now;
+  const double dt = last_period_.toSec();
+  joint_velocity_[0] = (left_wheel_angle  - joint_position_[0]) / dt;
+  joint_velocity_[1] = (right_wheel_angle - joint_position_[1]) / dt;
   joint_position_[0] = left_wheel_angle;
   joint_position_[1] = right_wheel_angle;
   
@@ -157,7 +161,7 @@ void OscarHardwareInterface::write() {
   
   rc_motor_set(MOTOR_CHANNEL_L, MOTOR_POLARITY_L * dutyL);
   rc_motor_set(MOTOR_CHANNEL_R, MOTOR_POLARITY_R * dutyR);
-  rc_servo_send_pulse_normalized( STEERING_SERVO_CH, steering);
+  rc_servo_send_pulse_normalized(STEERING_SERVO_CH, steering);
 }
 
 /*******************************************************************************
@@ -215,8 +219,9 @@ int main(int argc, char** argv)
   while (ros::ok() and rc_get_state()!=EXITING)
     {
       rc_mpu_block_until_dmp_data();
-      hw.read();
-      cm.update(ros::Time::now(), period);
+      ros::Time now = ros::Time::now();
+      hw.read(now);
+      cm.update(now, period);
       hw.write();
     }
 
