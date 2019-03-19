@@ -39,7 +39,7 @@
   <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
     <!--<param name="twist_cmd_topic" value="oscar_ackermann_controller/cmd_vel"/>-->
     <param name="ack_cmd_topic" value="oscar_ackermann_controller/cmd_ack"/>
-    <param name="robot_pose_topic_odom" value="oscar_v0/base_link_truth"/>
+    <param name="robot_pose_topic" value="oscar_v0/base_link_truth"/>
     <param name="path_filename" value="$(arg path_filename)"/>
     <param name="vel_setpoint" value="$(arg vel_setpoint)"/>
     <param name="look_ahead" value="0.3"/>

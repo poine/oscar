@@ -37,6 +37,7 @@
     <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
       <param name="twist_cmd_topic" value="oscar_ackermann_controller/cmd_vel"/>
       <!--<param name="ack_cmd_topic" value="oscar_ackermann_controller/cmd_ack"/>-->
+      <param name="robot_pose_topic" value="/smocap/est_marker" />
       <param name="path_filename" value="$(arg path_filename)"/>
       <param name="vel_setpoint" value="$(arg vel_setpoint)"/>
       <param name="look_ahead" value="$(arg look_ahead)"/>
