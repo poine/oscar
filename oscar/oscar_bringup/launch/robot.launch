@@ -5,8 +5,8 @@
   <arg name="start_hardware" default="true"/>
   <arg name="load_urdf" default="true"/>
   <arg name="start_description" default="true"/>
-  <arg name="start_teleop" default="true"/>
-  <arg name="start_multimaster" default="true"/>
+  <arg name="start_teleop" default="false"/>
+  <arg name="start_multimaster" default="false"/>
   
   <!-- Starts hardware interface -->
   <group if="$(arg start_hardware)">
