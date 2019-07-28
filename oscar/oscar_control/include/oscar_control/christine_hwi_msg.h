@@ -15,18 +15,18 @@ struct ChristineHardwareOutput {
   uint8_t seq;
   uint8_t seq2;
   float bat_voltage;
-  float mot_enc;
-  float mot_vel;
-  float ax;
-  float ay;
-  float az;
-  float gx;
-  float gy;
-  float gz;
-  float qw;
-  float qx;
-  float qy;
-  float qz;
+  /* float mot_enc; */
+  /* float mot_vel; */
+  /* float ax; */
+  /* float ay; */
+  /* float az; */
+  /* float gx; */
+  /* float gy; */
+  /* float gz; */
+  /* float qw; */
+  /* float qx; */
+  /* float qy; */
+  /* float qz; */
 };
 
 
