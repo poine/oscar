@@ -9,7 +9,7 @@ void msg_cbk(uint8_t* buf, uint8_t len) {
   std::printf("Got msg (%u)\n", len);
   struct ChristineHardwareOutput* hi = reinterpret_cast<struct ChristineHardwareOutput*>(buf);
   std::printf("  adc: %f\n", hi->bat_voltage);
-  std::printf("  mot_enc: %f\n", hi->mot_enc);
+  //std::printf("  mot_enc: %f\n", hi->mot_enc);
 }
 
 #define LOOP_HZ 50
@@ -27,11 +27,12 @@ ChristineSerialHWI::~ChristineSerialHWI() {
 }
 
 void ChristineSerialHWI::serial_callback(const uint8_t* buf, size_t len) {
-  fprintf(stderr, "read %ld\n", len);
-  for (auto i=0; i<len; i++) {
+  fprintf(stderr, "read %u\n", len);
+  for (auto i=0; i<len; i++)
     std::printf("  %x", buf[i]);
+  std::printf("\n");
+  for (auto i=0; i<len; i++)
     parser_parse(&parser_, buf[i]);
-  }
 }
 
 
