@@ -1,7 +1,7 @@
 #include "oscar_control/christine_hwi_msg.h"
 #include <iostream>
 
-#define DEBUG__
+//#define DEBUG__
 #ifdef DEBUG__
 #define DEBUG_(_x) _x
 #else
@@ -21,21 +21,20 @@ void parser_parse(struct ChristineHWIParser* self, uint8_t b) {
         self->status = STA_GOT_STX;
 	DEBUG_(std::printf("  stx: %x\n", b);)
       }
-      else
-	std::printf("  dropping: %x\n", b);
+      DEBUG_(else std::printf("  dropping: %x\n", b);)
       break;
     case STA_GOT_STX:
-      std::printf("  len: %x (%d)\n", b, b);
+      DEBUG_(std::printf("  len: %x (%d)\n", b, b);)
       self->len = b;
       self->status = STA_GOT_LEN;
       break;
   case STA_GOT_LEN:
-    //std::printf("  len: %x (%d)\n", b, b);
+      DEBUG_(std::printf("  seq1: %x (%d)\n", b, b);)
       self->seq = b;
       self->status = STA_GOT_SEQ1;
       break;
   case STA_GOT_SEQ1:
-    //std::printf("  len: %x (%d)\n", b, b);
+      DEBUG_(std::printf("  seq2: %x (%d)\n", b, b);)
       self->seq += b>>8;
       self->status = STA_GOT_SEQ2;
       break;
@@ -46,11 +45,11 @@ void parser_parse(struct ChristineHWIParser* self, uint8_t b) {
 	self->status = STA_GOT_PAYLOAD;
       break;
     case STA_GOT_PAYLOAD:
-      std::printf("  ck1: %x\n", b);
+      DEBUG_(std::printf("  ck1: %x\n", b);)
       self->status = STA_GOT_CK1;
       break;
     case STA_GOT_CK1:
-      std::printf("  ck2: %x\n", b);
+      DEBUG_(std::printf("  ck2: %x\n", b);)
       self->msg_cbk(self->buf, self->buf_idx);
       parser_reset(self);
       break;
