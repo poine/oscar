@@ -1,6 +1,14 @@
 #include "oscar_control/christine_hwi_msg.h"
 #include <iostream>
 
+#define DEBUG__
+#ifdef DEBUG__
+#define DEBUG_(_x) _x
+#else
+#define DEBUG_(_x)
+#endif
+
+
 void parser_reset(struct ChristineHWIParser* self) {
   self->status = STA_UNINIT;
   self->buf_idx = 0;
@@ -11,7 +19,7 @@ void parser_parse(struct ChristineHWIParser* self, uint8_t b) {
     case STA_UNINIT:
       if (b == CHRISTINE_HWI_MSG_STX) {
         self->status = STA_GOT_STX;
-	std::printf("  stx: %x\n", b);
+	DEBUG_(std::printf("  stx: %x\n", b);)
       }
       else
 	std::printf("  dropping: %x\n", b);

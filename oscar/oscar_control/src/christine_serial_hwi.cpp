@@ -8,7 +8,7 @@
 void msg_cbk(uint8_t* buf, uint8_t len) {
   std::printf("Got msg (%u)\n", len);
   struct ChristineHardwareOutput* hi = reinterpret_cast<struct ChristineHardwareOutput*>(buf);
-  std::printf("  adc: %f\n", hi->bat_voltage);
+  std::printf("  bat: %f\n", hi->bat_voltage);
   //std::printf("  mot_enc: %f\n", hi->mot_enc);
 }
 
@@ -27,7 +27,7 @@ ChristineSerialHWI::~ChristineSerialHWI() {
 }
 
 void ChristineSerialHWI::serial_callback(const uint8_t* buf, size_t len) {
-  fprintf(stderr, "read %u\n", len);
+  fprintf(stderr, "read %lu\n", len);
   for (auto i=0; i<len; i++)
     std::printf("  %x", buf[i]);
   std::printf("\n");
@@ -70,7 +70,8 @@ void ChristineSerialHWI::write() {
   struct ChristineHardwareInputMsg him;
   him.h1 = CHRISTINE_HWI_MSG_STX;
   him.len = sizeof(him);
-  him.data.steering_srv = 0.;
+  float now = ros::Time::now().toSec();
+  him.data.steering_srv = sin(now);
   him.data.throttle_servo = 0.;
   // TODO: compute checksum
   const uint8_t* buf = reinterpret_cast<const uint8_t*>(&him);
