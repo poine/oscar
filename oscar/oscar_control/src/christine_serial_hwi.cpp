@@ -79,7 +79,8 @@ void ChristineSerialHWI::write() {
   him.data.steering_srv = _v;
   him.data.throttle_servo = 0.;
   // TODO: compute checksum
-  const uint8_t* buf = reinterpret_cast<const uint8_t*>(&him);
+  uint8_t* buf = reinterpret_cast<uint8_t*>(&him);
+  compute_checksum(buf+1, sizeof(him.data)+3, &him.ck1, &him.ck2);
   serial_.send_bytes(buf, sizeof(him));
 #if 0
   std::printf("  sending: %f\n", _v);
