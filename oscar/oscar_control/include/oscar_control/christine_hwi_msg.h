@@ -65,7 +65,10 @@ struct ChristineHWIParser {
   uint8_t buf_idx;
   uint8_t len;
   uint16_t seq;
+  uint16_t err_cnt;
+  //uint64_t last_rx_msg_time;
   void (*msg_cbk)(uint8_t* buf, uint8_t len);
+  
 };
 
 void parser_reset(struct ChristineHWIParser* self);
