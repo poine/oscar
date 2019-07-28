@@ -12,20 +12,33 @@
 
 #define NB_JOINTS 3
 
+#define STA_UNINIT  0
+#define STA_GOT_STX 1
+#define STA_GOT_LEN 2
+#define STA_GOT_PAYLOAD 3
+#define STA_GOT_CK1 4
+
+
 class ChristineSerialHWI : public hardware_interface::RobotHW
 {
- public:
-  ChristineSerialHWI();
-  virtual ~ChristineSerialHWI();
-  bool start();
-  void read(ros::Time now);
-  void write();
-  bool shutdown();
+  public:
+    ChristineSerialHWI();
+    virtual ~ChristineSerialHWI();
+    bool start();
+    void read(ros::Time now);
+    void write();
+    bool shutdown();
 
   private:
-//struct SerialPort* sp_;
     async_comm::Serial serial_;
     void serial_callback(const uint8_t* buf, size_t len);
+    void reset_parser();
+    void parse(uint8_t b);
+    void serial_msg_cbk();
+    uint8_t parser_status_;
+    uint8_t parser_buf_[255];
+    uint8_t parser_buf_idx_;
+    uint8_t parser_len_;
 };
 
 #endif // OSCAR_CONTROL__CHRISTINE_BBB_HWI_H

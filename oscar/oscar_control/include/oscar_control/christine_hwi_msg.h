@@ -44,6 +44,6 @@ struct ChristineHardwareOutputMsg {
 };
 
 
-#define CHRISTINE_HWI_MSG_HDR 0xff
+#define CHRISTINE_HWI_MSG_STX 0x99
 
 #endif // CHRISTINE_HWI_MSG_H
