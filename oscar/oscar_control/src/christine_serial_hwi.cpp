@@ -1,17 +1,25 @@
 #include <oscar_control/christine_serial_hwi.h>
 #include <controller_manager/controller_manager.h>
 
-#include "oscar_control/christine_hwi_msg.h"
+
 
 #define __NAME "christine_serial_hardware_interface"
+
+void msg_cbk(uint8_t* buf, uint8_t len) {
+  std::printf("Got msg (%u)\n", len);
+  struct ChristineHardwareOutput* hi = reinterpret_cast<struct ChristineHardwareOutput*>(buf);
+  std::printf("  adc: %f\n", hi->bat_voltage);
+  std::printf("  mot_enc: %f\n", hi->mot_enc);
+}
 
 #define LOOP_HZ 50
 #define LOOP_DT (1./LOOP_HZ)
 ChristineSerialHWI::ChristineSerialHWI():
   serial_("/dev/ttyTHS1", 115200)
 {
-  reset_parser();
-  //sp_ = serial_port_new();
+  parser_.msg_cbk = msg_cbk;
+  parser_reset(&parser_);
+  
   serial_.register_receive_callback(std::bind(&ChristineSerialHWI::serial_callback, this, std::placeholders::_1, std::placeholders::_2));
 }
 
@@ -20,47 +28,19 @@ ChristineSerialHWI::~ChristineSerialHWI() {
 
 void ChristineSerialHWI::serial_callback(const uint8_t* buf, size_t len) {
   fprintf(stderr, "read %ld\n", len);
-  for (auto i=0; i<len; i++)
-    parse(buf[i]);
-}
-
-void ChristineSerialHWI::reset_parser() {
-  parser_status_ = STA_UNINIT;
-  parser_buf_idx_ = 0;
-}
-
-void ChristineSerialHWI::parse(uint8_t b) {
-  switch (parser_status_) {
-    case STA_UNINIT:
-      if (b == CHRISTINE_HWI_MSG_STX) {
-        parser_status_ = STA_GOT_STX;
-      }
-      break;
-    case STA_GOT_STX:
-      parser_len_ = b;
-      parser_status_ = STA_GOT_LEN;
-      break;
-    case STA_GOT_LEN:
-      parser_buf_[parser_buf_idx_] = b;
-      parser_buf_idx_ += 1;
-      if (parser_buf_idx_ == parser_len_)
-	parser_status_ = STA_GOT_PAYLOAD;
-      break;
-    case STA_GOT_PAYLOAD:
-      parser_status_ = STA_GOT_CK1;
-      break;
-    case STA_GOT_CK1:
-      serial_msg_cbk();
-      reset_parser();
-      break;
-	    
+  for (auto i=0; i<len; i++) {
+    std::printf("  %x", buf[i]);
+    parser_parse(&parser_, buf[i]);
   }
 }
 
+
+
 void ChristineSerialHWI::serial_msg_cbk() {
   std::printf("Got msg\n");
-  struct ChristineHardwareOutput* hi = reinterpret_cast<struct ChristineHardwareOutput*>(parser_buf_);
-  std::printf("  adc: %f\n", hi->bat_voltage);
+  //struct ChristineHardwareOutput* hi = reinterpret_cast<struct ChristineHardwareOutput*>(parser_buf_);
+  //std::printf("  adc: %f\n", hi->bat_voltage);
+  //std::printf("  mot_enc: %f\n", hi->mot_enc);
 }
 
 bool ChristineSerialHWI::start() {
