@@ -9,7 +9,7 @@
 #include <robotcontrol.h>
 
 #include "oscar_control/christine_serial_port.h"
-#include "oscar_control/christine_hw.h"
+#include "oscar_control/christine_hwi_msg.h"
 
 struct State {
   struct SerialPort* sp;
@@ -72,7 +72,7 @@ static gboolean on_serial_data_received(GIOChannel *source,
   if (!_err) {
     if (st == G_IO_STATUS_NORMAL) {
       //parse_data(buf, bytes_read);
-      printf("read %d\n", bytes_read);
+      printf("read %ld\n", bytes_read);
     }
   } else {
     printf("error reading serial: %s\n", _err->message);
@@ -94,7 +94,7 @@ static void send() {
   GError *_err = NULL;
   g_io_channel_write_chars(state.channel, (gchar*)(&ho), sizeof(ho), &bytes_written, &_err);
   if (!_err) {
-    printf("\rwrote %d\n", bytes_written);
+    printf("\rwrote %ld\n", bytes_written);
   } else {
     printf("error reading serial: %s\n", _err->message);
     g_error_free(_err);

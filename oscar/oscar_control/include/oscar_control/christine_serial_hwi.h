@@ -1,0 +1,31 @@
+#ifndef OSCAR_CONTROL__CHRISTINE_SERIAL_HWI_H
+#define OSCAR_CONTROL__CHRISTINE_SERIAL_HWI_H
+#include <ros/ros.h>
+// ros_control
+#include <hardware_interface/robot_hw.h>
+#include <hardware_interface/joint_state_interface.h>
+#include <hardware_interface/joint_command_interface.h>
+#include <hardware_interface/imu_sensor_interface.h>
+
+//#include "oscar_control/christine_serial_port.h"
+#include <async_comm/serial.h>
+
+#define NB_JOINTS 3
+
+class ChristineSerialHWI : public hardware_interface::RobotHW
+{
+ public:
+  ChristineSerialHWI();
+  virtual ~ChristineSerialHWI();
+  bool start();
+  void read(ros::Time now);
+  void write();
+  bool shutdown();
+
+  private:
+//struct SerialPort* sp_;
+    async_comm::Serial serial_;
+    void serial_callback(const uint8_t* buf, size_t len);
+};
+
+#endif // OSCAR_CONTROL__CHRISTINE_BBB_HWI_H

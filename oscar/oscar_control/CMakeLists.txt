@@ -22,6 +22,17 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   )
 
+find_package(Boost REQUIRED
+  COMPONENTS
+    chrono
+    system
+    thread
+)
+
+find_package(Threads REQUIRED)
+
+find_package(async_comm REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -129,6 +140,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${async_comm_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -144,6 +156,11 @@ add_library(oscar_ackermann_controller
   src/oac_raw_odom_publisher.cpp
 )
 
+target_link_libraries(oscar_ackermann_controller
+  ${catkin_LIBRARIES} roboticscape 
+  )
+
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -157,6 +174,10 @@ add_executable(oscar_hardware_interface_node
   src/oscar_hardware_interface.cpp
 )
 
+target_link_libraries(oscar_hardware_interface_node
+  ${catkin_LIBRARIES} roboticscape 
+)
+
 #add_library(christine_hardware_interface
 #  src/christine_hardware_interface.cpp
 #)
@@ -165,8 +186,16 @@ add_executable(oscar_hardware_interface_node
 #  src/christine_hardware_interface.cpp
 #)
 
+#target_link_libraries(christine_hardware_interface_node
+#  ${catkin_LIBRARIES} roboticscape 
+#)
+
 add_executable(christine_rc_node
   src/christine_rc.c
+)
+
+target_link_libraries(christine_rc_node
+  ${catkin_LIBRARIES} roboticscape 
 )
 
 find_package(PkgConfig REQUIRED)
@@ -193,21 +222,15 @@ target_link_libraries(christine_bbb_plug ${GLIB_LDFLAGS} roboticscape)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(oscar_ackermann_controller
-  ${catkin_LIBRARIES} roboticscape 
-  )
 
-target_link_libraries(oscar_hardware_interface_node
-  ${catkin_LIBRARIES} roboticscape 
+add_executable(christine_serial_hwi_node
+  src/christine_serial_hwi.cpp # src/christine_serial_port.c
 )
 
-target_link_libraries(christine_hardware_interface_node
-  ${catkin_LIBRARIES} roboticscape 
+target_link_libraries(christine_serial_hwi_node
+  ${catkin_LIBRARIES} ${async_comm_LIBRARIES}
 )
 
-target_link_libraries(christine_rc_node
-  ${catkin_LIBRARIES} roboticscape 
-)
 
 #############
 ## Install ##
