@@ -27,7 +27,7 @@ ChristineSerialHWI::~ChristineSerialHWI() {
 }
 
 void ChristineSerialHWI::serial_callback(const uint8_t* buf, size_t len) {
-  fprintf(stderr, "read %lu\n", len);
+  fprintf(stderr, "read %u\n", len);
   for (auto i=0; i<len; i++)
     std::printf("  %x", buf[i]);
   std::printf("\n");
@@ -68,8 +68,8 @@ void ChristineSerialHWI::read(ros::Time now) {
 
 void ChristineSerialHWI::write() {
   struct ChristineHardwareInputMsg him;
-  him.h1 = CHRISTINE_HWI_MSG_STX;
-  him.len = sizeof(him);
+  him.stx = CHRISTINE_HWI_MSG_STX;
+  him.len = sizeof(struct ChristineHardwareInput);
   float now = ros::Time::now().toSec();
   him.data.steering_srv = sin(now);
   him.data.throttle_servo = 0.;

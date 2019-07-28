@@ -8,7 +8,6 @@
 struct ChristineHardwareInput {
   float steering_srv;
   float throttle_servo;
-  
 };
 
 struct ChristineHardwareOutput {
