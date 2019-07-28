@@ -213,8 +213,9 @@ find_package(PkgConfig REQUIRED)
 pkg_search_module(GLIB REQUIRED glib-2.0)
 
 add_executable(christine_bbb_plug
-  src/christine_serial_port.c
-  src/christine_bbb_plug.c
+  src/christine_serial_port.cpp
+  src/christine_hwi_msg.cpp
+  src/christine_bbb_plug.cpp
 )
 target_include_directories(christine_bbb_plug PRIVATE ${GLIB_INCLUDE_DIRS})
 target_link_libraries(christine_bbb_plug ${GLIB_LDFLAGS} roboticscape)
