@@ -12,12 +12,6 @@
 
 #define NB_JOINTS 3
 
-#define STA_UNINIT  0
-#define STA_GOT_STX 1
-#define STA_GOT_LEN 2
-#define STA_GOT_PAYLOAD 3
-#define STA_GOT_CK1 4
-
 
 class ChristineSerialHWI : public hardware_interface::RobotHW
 {

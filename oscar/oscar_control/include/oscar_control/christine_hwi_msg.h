@@ -12,8 +12,6 @@ struct ChristineHardwareInput {
 };
 
 struct ChristineHardwareOutput {
-  uint8_t seq;
-  uint8_t seq2;
   float bat_voltage;
   /* float mot_enc; */
   /* float mot_vel; */
@@ -41,6 +39,7 @@ struct ChristineHardwareInputMsg {
 struct ChristineHardwareOutputMsg {
   uint8_t h1;
   uint8_t len;
+  uint16_t seq;
   struct ChristineHardwareOutput data;
   uint8_t ck1;
   uint8_t ck2;
@@ -52,17 +51,20 @@ struct ChristineHardwareOutputMsg {
 
 void compute_checksum(uint8_t* buf, uint8_t len, uint8_t* ck1, uint8_t* ck2);
 
-#define STA_UNINIT  0
-#define STA_GOT_STX 1
-#define STA_GOT_LEN 2
-#define STA_GOT_PAYLOAD 3
-#define STA_GOT_CK1 4
+#define STA_UNINIT      0
+#define STA_GOT_STX     1
+#define STA_GOT_LEN     2
+#define STA_GOT_SEQ1    3
+#define STA_GOT_SEQ2    4
+#define STA_GOT_PAYLOAD 5
+#define STA_GOT_CK1     6
 
 struct ChristineHWIParser {
   uint8_t status;
   uint8_t buf[CHRISTINE_HWI_MSG_BUF_LEN];
   uint8_t buf_idx;
   uint8_t len;
+  uint16_t seq;
   void (*msg_cbk)(uint8_t* buf, uint8_t len);
 };
 
