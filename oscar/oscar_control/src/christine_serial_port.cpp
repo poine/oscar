@@ -73,7 +73,7 @@ static inline int uart_speed(int def)
 
 struct SerialPort *serial_port_new(void)
 {
-  struct SerialPort *me = malloc(sizeof(struct SerialPort));
+  struct SerialPort *me = (struct SerialPort *)malloc(sizeof(struct SerialPort));
   return me;
 }
 

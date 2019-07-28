@@ -30,9 +30,9 @@ static void handle_frame(void);
 
 static void msg_cbk(uint8_t* buf, uint8_t len) {
   fprintf(stderr, "Got msg (%u)\n", len);
-  //struct ChristineHardwareInput* hi = reinterpret_cast<struct ChristineHardwareInput*>(buf);
-  struct ChristineHardwareInput* hi = (struct ChristineHardwareInput*)buf;
-  fprintf(stderr, "  steering: %f\n", hi->steering_srv);
+  struct ChristineHardwareInput* hi = reinterpret_cast<struct ChristineHardwareInput*>(buf);
+  //struct ChristineHardwareInput* hi = (struct ChristineHardwareInput*)buf;
+  //fprintf(stderr, "  steering: %f\n", hi->steering_srv);
   //std::printf("  throttle: %f\n", hi->throttle_servo);
 }
 
@@ -85,7 +85,11 @@ static gboolean on_serial_data_received(GIOChannel *source,
   GIOStatus st = g_io_channel_read_chars(source, buf, 255, &bytes_read, &_err);
   if (!_err) {
     if (st == G_IO_STATUS_NORMAL) {
-      //parse_data(buf, bytes_read);
+      for (int i=0; i<bytes_read; i++)
+	fprintf(stderr, "  %x", buf[i]);
+      fprintf(stderr, "\n");
+      for (int i=0; i<bytes_read; i++)
+	parser_parse(&state.parser, buf[i]);
       printf("read %u\n", bytes_read);
     }
   } else {
@@ -102,7 +106,7 @@ static gboolean on_serial_data_received(GIOChannel *source,
 static void send() {
   state.seq += 1;
   struct ChristineHardwareOutputMsg hom;
-  hom.h1 = CHRISTINE_HWI_MSG_STX;
+  hom.stx = CHRISTINE_HWI_MSG_STX;
   hom.len = sizeof(hom.data);
   hom.seq = state.seq;
   //  hom.data.seq = state.seq;
@@ -115,7 +119,7 @@ static void send() {
   GError *_err = NULL;
   g_io_channel_write_chars(state.channel, (gchar*)(&hom), sizeof(hom), &bytes_written, &_err);
   if (!_err) {
-    printf("\rwrote %u\n", bytes_written);
+    //printf("\rwrote %u\n", bytes_written);
   } else {
     printf("error writing serial: %s\n", _err->message);
     g_error_free(_err);
