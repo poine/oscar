@@ -3,6 +3,7 @@
 //
 #ifndef CHRISTINE_HWI_MSG_H
 #define CHRISTINE_HWI_MSG_H
+#include <inttypes.h>
 
 struct ChristineHardwareInput {
   float steering_srv;
@@ -11,6 +12,8 @@ struct ChristineHardwareInput {
 };
 
 struct ChristineHardwareOutput {
+  uint8_t seq;
+  uint8_t seq2;
   float bat_voltage;
   float mot_enc;
   float mot_vel;
@@ -43,7 +46,28 @@ struct ChristineHardwareOutputMsg {
   uint8_t ck2;
 };
 
-
+#define CHRISTINE_HWI_MSG_BUF_LEN 255
 #define CHRISTINE_HWI_MSG_STX 0x99
+
+
+void compute_checksum(uint8_t* buf, uint8_t len, uint8_t* ck1, uint8_t* ck2);
+
+#define STA_UNINIT  0
+#define STA_GOT_STX 1
+#define STA_GOT_LEN 2
+#define STA_GOT_PAYLOAD 3
+#define STA_GOT_CK1 4
+
+struct ChristineHWIParser {
+  uint8_t status;
+  uint8_t buf[CHRISTINE_HWI_MSG_BUF_LEN];
+  uint8_t buf_idx;
+  uint8_t len;
+  void (*msg_cbk)(uint8_t* buf, uint8_t len);
+};
+
+void parser_reset(struct ChristineHWIParser* self);
+void parser_parse(struct ChristineHWIParser* self, uint8_t b);
+
 
 #endif // CHRISTINE_HWI_MSG_H

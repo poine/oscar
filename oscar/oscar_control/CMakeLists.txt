@@ -178,6 +178,10 @@ target_link_libraries(oscar_hardware_interface_node
   ${catkin_LIBRARIES} roboticscape 
 )
 
+###
+### Would run on the BBB - ROS hardawre interface
+### mothballed for performance reasons
+###
 #add_library(christine_hardware_interface
 #  src/christine_hardware_interface.cpp
 #)
@@ -190,6 +194,9 @@ target_link_libraries(oscar_hardware_interface_node
 #  ${catkin_LIBRARIES} roboticscape 
 #)
 
+###
+### Runs on the BBB - forward radio control to servos
+###
 add_executable(christine_rc_node
   src/christine_rc.c
 )
@@ -198,6 +205,10 @@ target_link_libraries(christine_rc_node
   ${catkin_LIBRARIES} roboticscape 
 )
 
+
+###
+### Runs on the BBB - Communicates with ROS on Jetson
+###
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLIB REQUIRED glib-2.0)
 
@@ -224,7 +235,8 @@ target_link_libraries(christine_bbb_plug ${GLIB_LDFLAGS} roboticscape)
 # )
 
 add_executable(christine_serial_hwi_node
-  src/christine_serial_hwi.cpp # src/christine_serial_port.c
+  src/christine_serial_hwi.cpp
+  src/christine_hwi_msg.cpp
 )
 
 target_link_libraries(christine_serial_hwi_node
