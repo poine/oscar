@@ -157,6 +157,28 @@ add_executable(oscar_hardware_interface_node
   src/oscar_hardware_interface.cpp
 )
 
+#add_library(christine_hardware_interface
+#  src/christine_hardware_interface.cpp
+#)
+
+#add_executable(christine_hardware_interface_node
+#  src/christine_hardware_interface.cpp
+#)
+
+add_executable(christine_rc_node
+  src/christine_rc.c
+)
+
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLIB REQUIRED glib-2.0)
+
+add_executable(christine_bbb_plug
+  src/christine_serial_port.c
+  src/christine_bbb_plug.c
+)
+target_include_directories(christine_bbb_plug PRIVATE ${GLIB_INCLUDE_DIRS})
+target_link_libraries(christine_bbb_plug ${GLIB_LDFLAGS} roboticscape)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -176,6 +198,14 @@ target_link_libraries(oscar_ackermann_controller
   )
 
 target_link_libraries(oscar_hardware_interface_node
+  ${catkin_LIBRARIES} roboticscape 
+)
+
+target_link_libraries(christine_hardware_interface_node
+  ${catkin_LIBRARIES} roboticscape 
+)
+
+target_link_libraries(christine_rc_node
   ${catkin_LIBRARIES} roboticscape 
 )
 

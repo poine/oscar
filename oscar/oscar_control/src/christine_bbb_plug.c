@@ -34,6 +34,7 @@ static int bp_init(const char *serial_device) {
     fprintf(stderr, "Error opening %s code %d\n", serial_device, ret);
     return 1;
   }
+  fprintf(stderr, "Opened serial port %s\n", serial_device);
   state.channel = g_io_channel_unix_new(state.sp->fd);
   g_io_channel_set_encoding(state.channel, NULL, NULL);
   g_io_add_watch(state.channel, G_IO_IN , on_serial_data_received, NULL);
@@ -93,7 +94,7 @@ static void send() {
   GError *_err = NULL;
   g_io_channel_write_chars(state.channel, (gchar*)(&ho), sizeof(ho), &bytes_written, &_err);
   if (!_err) {
-    printf("wrote %d\n", bytes_written);
+    printf("\rwrote %d\n", bytes_written);
   } else {
     printf("error reading serial: %s\n", _err->message);
     g_error_free(_err);
