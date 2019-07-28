@@ -12,6 +12,7 @@ struct ChristineHardwareInput {
 
 struct ChristineHardwareOutput {
   float bat_voltage;
+  float mot_vel;
   /* float mot_enc; */
   /* float mot_vel; */
   /* float ax; */

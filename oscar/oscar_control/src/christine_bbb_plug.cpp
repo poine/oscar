@@ -22,6 +22,10 @@ struct State {
   float steering_servo_input;
   float throttle_servo_input;
   uint64_t last_rx_msg_time;
+
+  float   motor_vel;
+  int32_t motor_pos;
+  
 };
 
 static struct State state;
@@ -82,7 +86,9 @@ static int bp_init(const char *serial_device) {
   }
   // TODO/WARNING: not turned off
   rc_servo_power_rail_en(1);
- 
+  // initialize encoder
+  rc_encoder_eqep_init();
+  state.motor_pos = rc_encoder_eqep_read(1); 
   return 0;
 }
 
@@ -131,7 +137,7 @@ static void send() {
   hom.len = sizeof(hom.data);
   hom.seq = state.tx_seq;
   hom.data.bat_voltage = rc_adc_batt();
-  //hom.data.mot_enc = 1;
+  hom.data.mot_vel = state.motor_vel;
 
   uint8_t* buf = (uint8_t*)(&hom);
   compute_checksum(buf+4, sizeof(hom.data), &hom.ck1, &hom.ck2);
@@ -167,6 +173,10 @@ gboolean periodic_callback(gpointer data)
     state.throttle_servo_input = 0;
     drive_servos();
   }
+  int tmp = rc_encoder_eqep_read(1);
+  float klp = 0.9;
+  state.motor_vel = klp*state.motor_vel + (1-klp)*float(tmp-state.motor_pos);
+  state.motor_pos = tmp;
   send();
   if (state.periodic_counter%10 == 0)
     display();

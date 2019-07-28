@@ -12,6 +12,7 @@
 #include <rc/adc.h>
 #include <rc/dsm.h>
 #include <rc/servo.h>
+#include <rc/encoder_eqep.h>
 
 static int running;
 
@@ -59,9 +60,14 @@ int main(int argc, char *argv[])
 	printf("Turning On 6V Servo Power Rail\n");
 	rc_servo_power_rail_en(1);
 
+	rc_encoder_eqep_init();
+	int motor_pos = rc_encoder_eqep_read(1), motor_vel = 0;
 
 	// Main loop runs at frequency_hz
 	while(running){
+	  int tmp = rc_encoder_eqep_read(1);
+	  motor_vel = tmp - motor_pos;
+	  motor_pos = tmp;
 	  dsm_nanos = rc_dsm_nanos_since_last_packet();
 	  if(dsm_nanos > 200000000){
 	    rc_servo_send_pulse_normalized(1, 0.);
@@ -79,7 +85,7 @@ int main(int argc, char *argv[])
 	    rc_servo_send_pulse_normalized(1, srv_steering);
 	    rc_servo_send_pulse_normalized(2, srv_throttle);
 
-	    printf("RC: st: %.3f th: %.3f SRV st: %.3f th: %.3f\n", rc_steering, rc_throttle, srv_steering, srv_throttle);
+	    printf("RC: st: %.3f th: %.3f SRV st: %.3f th: %.3f M %d %d\n", rc_steering, rc_throttle, srv_steering, srv_throttle, motor_pos, motor_vel);
 
 	  }
 	  
