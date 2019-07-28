@@ -31,6 +31,7 @@ struct ChristineHardwareOutput {
 struct ChristineHardwareInputMsg {
   uint8_t h1;
   uint8_t len;
+  uint16_t seq;
   struct ChristineHardwareInput data;
   uint8_t ck1;
   uint8_t ck2;
