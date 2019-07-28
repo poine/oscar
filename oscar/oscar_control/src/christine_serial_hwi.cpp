@@ -8,7 +8,7 @@
 void msg_cbk(uint8_t* buf, uint8_t len) {
   std::printf("Got msg (%u)\n", len);
   struct ChristineHardwareOutput* hi = reinterpret_cast<struct ChristineHardwareOutput*>(buf);
-  std::printf("  bat: %f\n", hi->bat_voltage);
+  std::printf("  bat: %.2f\n", hi->bat_voltage);
   //std::printf("  mot_enc: %f\n", hi->mot_enc);
 }
 
@@ -19,6 +19,7 @@ ChristineSerialHWI::ChristineSerialHWI():
 {
   parser_.msg_cbk = msg_cbk;
   parser_reset(&parser_);
+  out_seq_ = 0;
   
   serial_.register_receive_callback(std::bind(&ChristineSerialHWI::serial_callback, this, std::placeholders::_1, std::placeholders::_2));
 }
@@ -27,10 +28,12 @@ ChristineSerialHWI::~ChristineSerialHWI() {
 }
 
 void ChristineSerialHWI::serial_callback(const uint8_t* buf, size_t len) {
-  fprintf(stderr, "read %u\n", len);
+#if 0
+  fprintf(stderr, "read %lu\n", len);
   for (auto i=0; i<len; i++)
     std::printf("  %x", buf[i]);
   std::printf("\n");
+#endif
   for (auto i=0; i<len; i++)
     parser_parse(&parser_, buf[i]);
 }
@@ -70,12 +73,22 @@ void ChristineSerialHWI::write() {
   struct ChristineHardwareInputMsg him;
   him.stx = CHRISTINE_HWI_MSG_STX;
   him.len = sizeof(struct ChristineHardwareInput);
-  float now = ros::Time::now().toSec();
-  him.data.steering_srv = sin(now);
+  him.seq = out_seq_;
+  double now = ros::Time::now().toSec();
+  float _v = sin(now);
+  him.data.steering_srv = _v;
   him.data.throttle_servo = 0.;
   // TODO: compute checksum
   const uint8_t* buf = reinterpret_cast<const uint8_t*>(&him);
   serial_.send_bytes(buf, sizeof(him));
+#if 0
+  std::printf("  sending: %f\n", _v);
+  std::printf("  sending: ");
+  for (auto i=0; i<sizeof(him); i++)
+    std::printf("  %x", buf[i]);
+  std::printf("\n");
+#endif
+  out_seq_ += 1;
 }
 
 bool ChristineSerialHWI::shutdown() {

@@ -34,6 +34,7 @@ class ChristineSerialHWI : public hardware_interface::RobotHW
 //    uint8_t parser_buf_idx_;
 //    uint8_t parser_len_;
     struct ChristineHWIParser parser_;
+    uint16_t out_seq_;
 };
 
 #endif // OSCAR_CONTROL__CHRISTINE_BBB_HWI_H
