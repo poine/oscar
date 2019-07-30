@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--<xacro:include filename="$(find oscar_description)/urdf/oscar_defaults.urdf.xacro" /> -->
+  
+  <xacro:property name="use_eachine_camera" value="False" />
+  <xacro:property name="use_smocap_ir_marker" value="False" />
+  
+  <xacro:property name="high_definition_wheel_visual" value="True" />
+  <xacro:property name="high_definition_camera_visual" value="True" />
+
+  
+  <xacro:include filename="$(find oscar_description)/urdf/oscar.urdf.xacro" />
+  
+</robot>
