@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-
-  <rosparam command="load" file="$(find oscar_control)/config/control.yaml" />
+  <arg name="config" default="oscar_v0"/>
+  <rosparam command="load" file="$(find oscar_control)/config/$(arg config)_control.yaml" />
 
   <node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="oscar_ackermann_controller oscar_imu_controller oscar_joint_publisher"/>
    <!--<node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="oscar_imu_controller"/> -->
