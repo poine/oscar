@@ -162,8 +162,8 @@ namespace oscar_controller {
     else {                                       // ackermann message
       virtual_steering_angle = input_manager_.rt_commands_.steering;
       speed_sp =  input_manager_.rt_commands_.speed;
-      vl = speed_sp * GEOM_L/ (GEOM_L - GEOM_D/2*tan(virtual_steering_angle));
-      vr = speed_sp * GEOM_L/ (GEOM_L + GEOM_D/2*tan(virtual_steering_angle));
+      vl = speed_sp * GEOM_L/ (GEOM_L + GEOM_D/2*tan(virtual_steering_angle));
+      vr = speed_sp * GEOM_L/ (GEOM_L - GEOM_D/2*tan(virtual_steering_angle));
     }
 					 
     steering_angle_ = virtual_steering_angle; // mechanics is supposedly doing the trick...

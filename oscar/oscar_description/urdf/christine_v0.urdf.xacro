@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--<xacro:include filename="$(find oscar_description)/urdf/oscar_defaults.urdf.xacro" /> -->
+  
+  <xacro:property name="use_camera" value="true" />
+  <xacro:property name="cam_name" value="camera_road_front" />
+  <xacro:property name="cam_hd_visual" value="true" />
+  <xacro:property name="cam_cl_to_ref_xyz" value="0.19881951 -0.00770707  0.13167937" />
+  <xacro:property name="cam_cl_to_ref_rpy" value="0.02039069  0.35225342  0.06052593" />
+
+  <xacro:property name="use_smocap_ir_marker" value="False" />
+  
+  <xacro:property name="high_definition_wheel_visual" value="True" />
+  <xacro:property name="high_definition_camera_visual" value="True" />
+
+  
+  <xacro:include filename="$(find oscar_description)/urdf/oscar.urdf.xacro" />
+  
+</robot>
