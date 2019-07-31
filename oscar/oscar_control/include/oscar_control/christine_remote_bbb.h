@@ -16,6 +16,8 @@ class BBBLink {
 
   void get_bat(float* bat);
   void get_motor(float* pos, float* vel);
+  void get_dsm(float* steering, float* throttle);
+  void get_accel(float a[3]);
   
  private:
   async_comm::Serial serial_;
@@ -29,6 +31,8 @@ class BBBLink {
   float bat_;
   float mot_pos_;
   float mot_vel_;
+  float dsm_steering_, dsm_throttle_;
+  float accel_[3];
   
 };
 

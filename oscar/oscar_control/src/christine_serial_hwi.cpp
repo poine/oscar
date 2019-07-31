@@ -69,7 +69,8 @@ void ChristineSerialHWI::read(ros::Time now) {
   bbb_link_.get_motor(&motor_pos, &motor_vel);
   float bat;
   bbb_link_.get_bat(&bat);
-  std::printf("\r  bat %.2f pos: %.2f vel %.2f", bat, motor_pos, motor_vel);
+  float a[3]; bbb_link_.get_accel(a);
+  std::printf("\r  bat %.2f pos: %.2f vel %.2f accel %.1f %.1f %.1f", bat, motor_pos, motor_vel, a[0], a[1], a[2]);
   joint_position_[2] = joint_position_command_[2];
   
 }

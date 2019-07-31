@@ -31,22 +31,34 @@ void BBBLink::msg_callback(uint8_t* buf, uint8_t len) {
   struct ChristineHardwareOutput* hi = reinterpret_cast<struct ChristineHardwareOutput*>(buf);
   //std::printf("  bat: %.2f mot %.2f\n", hi->bat_voltage, hi->mot_vel);
   bat_ = hi->bat_voltage;
-  mot_pos_ = 0.11f; 
-  mot_vel_ =  hi->mot_vel; 
+  mot_pos_ =  hi->mot_pos; 
+  mot_vel_ =  hi->mot_vel;
+  dsm_steering_ = hi->dsm_steering;
+  dsm_throttle_ = hi->dsm_throttle;
+  accel_[0] = hi->ax;
+  accel_[1] = hi->ay;
+  accel_[2] = hi->az;
   if (msg_callback_ != NULL) msg_callback_(this, user_data_);
 }
 
+
+void BBBLink::get_bat(float* bat) {
+  *bat = bat_;
+}
 
 void BBBLink::get_motor(float* pos, float* vel) {
   *pos = mot_pos_;
   *vel = mot_vel_;
 }
 
-void BBBLink::get_bat(float* bat) {
-  *bat = bat_;
+void BBBLink::get_dsm(float* steering, float* throttle) {
+  *steering = dsm_steering_;
+  *throttle = dsm_throttle_;
 }
 
-
+void BBBLink::get_accel(float a[3]) {
+  memcpy(a, accel_, sizeof(accel_));
+}
 
 void BBBLink::serial_callback(const uint8_t* buf, size_t len) {
 #if 0
