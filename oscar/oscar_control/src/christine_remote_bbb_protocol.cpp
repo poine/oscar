@@ -1,4 +1,4 @@
-#include "oscar_control/christine_hwi_msg.h"
+#include "oscar_control/christine_remote_bbb_protocol.h"
 #include <iostream>
 
 //#define DEBUG__
@@ -9,6 +9,7 @@
 #endif
 
 void parser_init(struct ChristineHWIParser* self) {
+  self->msg_cbk_data = NULL;
   self->err_cnt = 0;
   parser_reset(self);
 }
@@ -58,7 +59,7 @@ void parser_parse(struct ChristineHWIParser* self, uint8_t b) {
       uint8_t ck1, ck2;
       compute_checksum(self->buf, self->len, &ck1, &ck2);
       if (ck1 == self->buf[self->len] and ck2 == self->buf[self->len+1]) 
-	self->msg_cbk(self->buf, self->buf_idx);
+	self->msg_cbk(self->msg_cbk_data, self->buf, self->buf_idx);
       else
 	self->err_cnt += 1;
       parser_reset(self);

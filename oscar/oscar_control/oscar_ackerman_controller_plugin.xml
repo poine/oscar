@@ -9,3 +9,13 @@
   </class>
 
 </library>
+
+<library path="lib/libchristine_ackermann_controller">
+
+  <class name="oscar_control/ChristineAckermannController" type="oscar_controller::ChristineAckermannController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      The ChristineAckermannController runs a rc car.
+    </description>
+  </class>
+
+</library>

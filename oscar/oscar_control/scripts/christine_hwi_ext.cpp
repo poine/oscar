@@ -493,7 +493,8 @@ static CYTHON_INLINE float __PYX_NAN() {
 
 #define __PYX_HAVE__christine_hwi_ext
 #define __PYX_HAVE_API__christine_hwi_ext
-#include "oscar_control/oscar_hardware_interface.h"
+#include <stdint.h>
+#include "oscar_control/christine_remote_bbb.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
@@ -699,18 +700,18 @@ static const char *__pyx_f[] = {
 };
 
 /*--- Type declarations ---*/
-struct __pyx_obj_17christine_hwi_ext_HWI;
+struct __pyx_obj_17christine_hwi_ext_BBBLink;
 
-/* "christine_hwi_ext.pyx":23
- *         bool shutdown();
+/* "christine_hwi_ext.pyx":40
+ *         void get_motor(float* pos, float* vel)
  * 
- * cdef class HWI:             # <<<<<<<<<<<<<<
- *     cdef c_HWI *thisptr
+ * cdef class BBBLink:             # <<<<<<<<<<<<<<
+ *     cdef c_BBB_LINK *thisptr
  * 
  */
-struct __pyx_obj_17christine_hwi_ext_HWI {
+struct __pyx_obj_17christine_hwi_ext_BBBLink {
   PyObject_HEAD
-  OscarHardwareInterface *thisptr;
+  BBBLink *thisptr;
 };
 
 
@@ -804,6 +805,14 @@ static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
 /* KeywordStringCheck.proto */
 static CYTHON_INLINE int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
 
+/* RaiseDoubleKeywords.proto */
+static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
+
+/* ParseKeywords.proto */
+static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
+    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
+    const char* function_name);
+
 /* PyObjectCall.proto */
 #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
@@ -882,10 +891,14 @@ static int __Pyx_check_binary_version(void);
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 
+/* Module declarations from 'libc' */
+
+/* Module declarations from 'libc.stdint' */
+
 /* Module declarations from 'libcpp' */
 
 /* Module declarations from 'christine_hwi_ext' */
-static PyTypeObject *__pyx_ptype_17christine_hwi_ext_HWI = 0;
+static PyTypeObject *__pyx_ptype_17christine_hwi_ext_BBBLink = 0;
 #define __Pyx_MODULE_NAME "christine_hwi_ext"
 int __pyx_module_is_main_christine_hwi_ext = 0;
 
@@ -903,6 +916,8 @@ static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
+static const char __pyx_k_servo_steering[] = "servo_steering";
+static const char __pyx_k_servo_throttle[] = "servo_throttle";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
@@ -918,62 +933,64 @@ static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_n_s_reduce;
 static PyObject *__pyx_n_s_reduce_cython;
 static PyObject *__pyx_n_s_reduce_ex;
+static PyObject *__pyx_n_s_servo_steering;
+static PyObject *__pyx_n_s_servo_throttle;
 static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_test;
-static int __pyx_pf_17christine_hwi_ext_3HWI___cinit__(struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_2start(struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_4write(struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_6shutdown(struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_tp_new_17christine_hwi_ext_HWI(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static int __pyx_pf_17christine_hwi_ext_7BBBLink___cinit__(struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_2init(struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_4send(struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self, PyObject *__pyx_v_servo_steering, PyObject *__pyx_v_servo_throttle); /* proto */
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_6get_motor(struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_tp_new_17christine_hwi_ext_BBBLink(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
 
-/* "christine_hwi_ext.pyx":26
- *     cdef c_HWI *thisptr
+/* "christine_hwi_ext.pyx":43
+ *     cdef c_BBB_LINK *thisptr
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
- *         self.thisptr = new c_HWI()
+ *         self.thisptr = new c_BBB_LINK()
  * 
  */
 
 /* Python wrapper */
-static int __pyx_pw_17christine_hwi_ext_3HWI_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_17christine_hwi_ext_3HWI_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_17christine_hwi_ext_7BBBLink_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_17christine_hwi_ext_7BBBLink_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
     __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return -1;}
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__cinit__", 0))) return -1;
-  __pyx_r = __pyx_pf_17christine_hwi_ext_3HWI___cinit__(((struct __pyx_obj_17christine_hwi_ext_HWI *)__pyx_v_self));
+  __pyx_r = __pyx_pf_17christine_hwi_ext_7BBBLink___cinit__(((struct __pyx_obj_17christine_hwi_ext_BBBLink *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_17christine_hwi_ext_3HWI___cinit__(struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self) {
+static int __pyx_pf_17christine_hwi_ext_7BBBLink___cinit__(struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "christine_hwi_ext.pyx":27
+  /* "christine_hwi_ext.pyx":44
  * 
  *     def __cinit__(self):
- *         self.thisptr = new c_HWI()             # <<<<<<<<<<<<<<
+ *         self.thisptr = new c_BBB_LINK()             # <<<<<<<<<<<<<<
  * 
- *     def start(self):
+ *     def init(self):
  */
-  __pyx_v_self->thisptr = new OscarHardwareInterface();
+  __pyx_v_self->thisptr = new BBBLink();
 
-  /* "christine_hwi_ext.pyx":26
- *     cdef c_HWI *thisptr
+  /* "christine_hwi_ext.pyx":43
+ *     cdef c_BBB_LINK *thisptr
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
- *         self.thisptr = new c_HWI()
+ *         self.thisptr = new c_BBB_LINK()
  * 
  */
 
@@ -983,59 +1000,59 @@ static int __pyx_pf_17christine_hwi_ext_3HWI___cinit__(struct __pyx_obj_17christ
   return __pyx_r;
 }
 
-/* "christine_hwi_ext.pyx":29
- *         self.thisptr = new c_HWI()
+/* "christine_hwi_ext.pyx":46
+ *         self.thisptr = new c_BBB_LINK()
  * 
- *     def start(self):             # <<<<<<<<<<<<<<
- *         return self.thisptr.start()
+ *     def init(self):             # <<<<<<<<<<<<<<
+ *         return self.thisptr.init()
  * 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_3start(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_3start(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_3init(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_3init(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("start (wrapper)", 0);
-  __pyx_r = __pyx_pf_17christine_hwi_ext_3HWI_2start(((struct __pyx_obj_17christine_hwi_ext_HWI *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("init (wrapper)", 0);
+  __pyx_r = __pyx_pf_17christine_hwi_ext_7BBBLink_2init(((struct __pyx_obj_17christine_hwi_ext_BBBLink *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_2start(struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self) {
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_2init(struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  __Pyx_RefNannySetupContext("start", 0);
+  __Pyx_RefNannySetupContext("init", 0);
 
-  /* "christine_hwi_ext.pyx":30
+  /* "christine_hwi_ext.pyx":47
  * 
- *     def start(self):
- *         return self.thisptr.start()             # <<<<<<<<<<<<<<
+ *     def init(self):
+ *         return self.thisptr.init()             # <<<<<<<<<<<<<<
  * 
- *     def write(self):
+ *     def send(self, servo_steering, servo_throttle):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->thisptr->start()); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 30, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->thisptr->init()); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 47, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "christine_hwi_ext.pyx":29
- *         self.thisptr = new c_HWI()
+  /* "christine_hwi_ext.pyx":46
+ *         self.thisptr = new c_BBB_LINK()
  * 
- *     def start(self):             # <<<<<<<<<<<<<<
- *         return self.thisptr.start()
+ *     def init(self):             # <<<<<<<<<<<<<<
+ *         return self.thisptr.init()
  * 
  */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("christine_hwi_ext.HWI.start", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("christine_hwi_ext.BBBLink.init", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1043,105 +1060,191 @@ static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_2start(struct __pyx_obj_17chr
   return __pyx_r;
 }
 
-/* "christine_hwi_ext.pyx":32
- *         return self.thisptr.start()
+/* "christine_hwi_ext.pyx":49
+ *         return self.thisptr.init()
  * 
- *     def write(self):             # <<<<<<<<<<<<<<
- *         self.thisptr.write()
+ *     def send(self, servo_steering, servo_throttle):             # <<<<<<<<<<<<<<
+ *         self.thisptr.send2(servo_steering, servo_throttle)
  * 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_5write(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_5write(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_5send(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_5send(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_servo_steering = 0;
+  PyObject *__pyx_v_servo_throttle = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("write (wrapper)", 0);
-  __pyx_r = __pyx_pf_17christine_hwi_ext_3HWI_4write(((struct __pyx_obj_17christine_hwi_ext_HWI *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("send (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_servo_steering,&__pyx_n_s_servo_throttle,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_servo_steering)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_servo_throttle)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("send", 1, 2, 2, 1); __PYX_ERR(1, 49, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "send") < 0)) __PYX_ERR(1, 49, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_servo_steering = values[0];
+    __pyx_v_servo_throttle = values[1];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("send", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 49, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("christine_hwi_ext.BBBLink.send", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_17christine_hwi_ext_7BBBLink_4send(((struct __pyx_obj_17christine_hwi_ext_BBBLink *)__pyx_v_self), __pyx_v_servo_steering, __pyx_v_servo_throttle);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_4write(struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self) {
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_4send(struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self, PyObject *__pyx_v_servo_steering, PyObject *__pyx_v_servo_throttle) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("write", 0);
+  float __pyx_t_1;
+  float __pyx_t_2;
+  __Pyx_RefNannySetupContext("send", 0);
 
-  /* "christine_hwi_ext.pyx":33
+  /* "christine_hwi_ext.pyx":50
  * 
- *     def write(self):
- *         self.thisptr.write()             # <<<<<<<<<<<<<<
+ *     def send(self, servo_steering, servo_throttle):
+ *         self.thisptr.send2(servo_steering, servo_throttle)             # <<<<<<<<<<<<<<
  * 
- *     def shutdown(self):
+ *     def get_motor(self):
  */
-  __pyx_v_self->thisptr->write();
+  __pyx_t_1 = __pyx_PyFloat_AsFloat(__pyx_v_servo_steering); if (unlikely((__pyx_t_1 == (float)-1) && PyErr_Occurred())) __PYX_ERR(1, 50, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsFloat(__pyx_v_servo_throttle); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(1, 50, __pyx_L1_error)
+  __pyx_v_self->thisptr->send2(__pyx_t_1, __pyx_t_2);
 
-  /* "christine_hwi_ext.pyx":32
- *         return self.thisptr.start()
+  /* "christine_hwi_ext.pyx":49
+ *         return self.thisptr.init()
  * 
- *     def write(self):             # <<<<<<<<<<<<<<
- *         self.thisptr.write()
+ *     def send(self, servo_steering, servo_throttle):             # <<<<<<<<<<<<<<
+ *         self.thisptr.send2(servo_steering, servo_throttle)
  * 
  */
 
   /* function exit code */
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("christine_hwi_ext.BBBLink.send", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "christine_hwi_ext.pyx":35
- *         self.thisptr.write()
+/* "christine_hwi_ext.pyx":52
+ *         self.thisptr.send2(servo_steering, servo_throttle)
  * 
- *     def shutdown(self):             # <<<<<<<<<<<<<<
- *         return self.thisptr.shutdown()
+ *     def get_motor(self):             # <<<<<<<<<<<<<<
+ *         cdef float mot_pos# = 0
+ *         cdef float mot_vel# = 0
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_7shutdown(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_7shutdown(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_7get_motor(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_7get_motor(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("shutdown (wrapper)", 0);
-  __pyx_r = __pyx_pf_17christine_hwi_ext_3HWI_6shutdown(((struct __pyx_obj_17christine_hwi_ext_HWI *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("get_motor (wrapper)", 0);
+  __pyx_r = __pyx_pf_17christine_hwi_ext_7BBBLink_6get_motor(((struct __pyx_obj_17christine_hwi_ext_BBBLink *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_6shutdown(struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self) {
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_6get_motor(struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self) {
+  float __pyx_v_mot_pos;
+  float __pyx_v_mot_vel;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  __Pyx_RefNannySetupContext("shutdown", 0);
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  __Pyx_RefNannySetupContext("get_motor", 0);
 
-  /* "christine_hwi_ext.pyx":36
- * 
- *     def shutdown(self):
- *         return self.thisptr.shutdown()             # <<<<<<<<<<<<<<
+  /* "christine_hwi_ext.pyx":55
+ *         cdef float mot_pos# = 0
+ *         cdef float mot_vel# = 0
+ *         self.thisptr.get_motor(&mot_pos, &mot_vel)             # <<<<<<<<<<<<<<
+ *         return mot_pos, mot_vel
+ *     # def shutdown(self):
+ */
+  __pyx_v_self->thisptr->get_motor((&__pyx_v_mot_pos), (&__pyx_v_mot_vel));
+
+  /* "christine_hwi_ext.pyx":56
+ *         cdef float mot_vel# = 0
+ *         self.thisptr.get_motor(&mot_pos, &mot_vel)
+ *         return mot_pos, mot_vel             # <<<<<<<<<<<<<<
+ *     # def shutdown(self):
+ *     #     return self.thisptr.shutdown()
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_v_self->thisptr->shutdown()); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 36, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_mot_pos); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_r = __pyx_t_1;
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_mot_vel); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 56, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 56, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_1);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
+  __Pyx_GIVEREF(__pyx_t_2);
+  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
   __pyx_t_1 = 0;
+  __pyx_t_2 = 0;
+  __pyx_r = __pyx_t_3;
+  __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "christine_hwi_ext.pyx":35
- *         self.thisptr.write()
+  /* "christine_hwi_ext.pyx":52
+ *         self.thisptr.send2(servo_steering, servo_throttle)
  * 
- *     def shutdown(self):             # <<<<<<<<<<<<<<
- *         return self.thisptr.shutdown()
+ *     def get_motor(self):             # <<<<<<<<<<<<<<
+ *         cdef float mot_pos# = 0
+ *         cdef float mot_vel# = 0
  */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("christine_hwi_ext.HWI.shutdown", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("christine_hwi_ext.BBBLink.get_motor", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1156,19 +1259,19 @@ static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_6shutdown(struct __pyx_obj_17
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_17christine_hwi_ext_3HWI_8__reduce_cython__(((struct __pyx_obj_17christine_hwi_ext_HWI *)__pyx_v_self));
+  __pyx_r = __pyx_pf_17christine_hwi_ext_7BBBLink_8__reduce_cython__(((struct __pyx_obj_17christine_hwi_ext_BBBLink *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self) {
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1195,7 +1298,7 @@ static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_8__reduce_cython__(CYTHON_UNU
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("christine_hwi_ext.HWI.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("christine_hwi_ext.BBBLink.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -1210,19 +1313,19 @@ static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_8__reduce_cython__(CYTHON_UNU
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_17christine_hwi_ext_3HWI_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_17christine_hwi_ext_7BBBLink_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_17christine_hwi_ext_3HWI_10__setstate_cython__(((struct __pyx_obj_17christine_hwi_ext_HWI *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_17christine_hwi_ext_7BBBLink_10__setstate_cython__(((struct __pyx_obj_17christine_hwi_ext_BBBLink *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_17christine_hwi_ext_HWI *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_17christine_hwi_ext_7BBBLink_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_17christine_hwi_ext_BBBLink *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1249,14 +1352,14 @@ static PyObject *__pyx_pf_17christine_hwi_ext_3HWI_10__setstate_cython__(CYTHON_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("christine_hwi_ext.HWI.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("christine_hwi_ext.BBBLink.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_tp_new_17christine_hwi_ext_HWI(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_17christine_hwi_ext_BBBLink(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -1264,14 +1367,14 @@ static PyObject *__pyx_tp_new_17christine_hwi_ext_HWI(PyTypeObject *t, CYTHON_UN
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  if (unlikely(__pyx_pw_17christine_hwi_ext_3HWI_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
+  if (unlikely(__pyx_pw_17christine_hwi_ext_7BBBLink_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
   return NULL;
 }
 
-static void __pyx_tp_dealloc_17christine_hwi_ext_HWI(PyObject *o) {
+static void __pyx_tp_dealloc_17christine_hwi_ext_BBBLink(PyObject *o) {
   #if PY_VERSION_HEX >= 0x030400a1
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -1280,21 +1383,21 @@ static void __pyx_tp_dealloc_17christine_hwi_ext_HWI(PyObject *o) {
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static PyMethodDef __pyx_methods_17christine_hwi_ext_HWI[] = {
-  {"start", (PyCFunction)__pyx_pw_17christine_hwi_ext_3HWI_3start, METH_NOARGS, 0},
-  {"write", (PyCFunction)__pyx_pw_17christine_hwi_ext_3HWI_5write, METH_NOARGS, 0},
-  {"shutdown", (PyCFunction)__pyx_pw_17christine_hwi_ext_3HWI_7shutdown, METH_NOARGS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_17christine_hwi_ext_3HWI_9__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_17christine_hwi_ext_3HWI_11__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_17christine_hwi_ext_BBBLink[] = {
+  {"init", (PyCFunction)__pyx_pw_17christine_hwi_ext_7BBBLink_3init, METH_NOARGS, 0},
+  {"send", (PyCFunction)__pyx_pw_17christine_hwi_ext_7BBBLink_5send, METH_VARARGS|METH_KEYWORDS, 0},
+  {"get_motor", (PyCFunction)__pyx_pw_17christine_hwi_ext_7BBBLink_7get_motor, METH_NOARGS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_17christine_hwi_ext_7BBBLink_9__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_17christine_hwi_ext_7BBBLink_11__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_17christine_hwi_ext_HWI = {
+static PyTypeObject __pyx_type_17christine_hwi_ext_BBBLink = {
   PyVarObject_HEAD_INIT(0, 0)
-  "christine_hwi_ext.HWI", /*tp_name*/
-  sizeof(struct __pyx_obj_17christine_hwi_ext_HWI), /*tp_basicsize*/
+  "christine_hwi_ext.BBBLink", /*tp_name*/
+  sizeof(struct __pyx_obj_17christine_hwi_ext_BBBLink), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_17christine_hwi_ext_HWI, /*tp_dealloc*/
+  __pyx_tp_dealloc_17christine_hwi_ext_BBBLink, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -1322,7 +1425,7 @@ static PyTypeObject __pyx_type_17christine_hwi_ext_HWI = {
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_17christine_hwi_ext_HWI, /*tp_methods*/
+  __pyx_methods_17christine_hwi_ext_BBBLink, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -1332,7 +1435,7 @@ static PyTypeObject __pyx_type_17christine_hwi_ext_HWI = {
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_17christine_hwi_ext_HWI, /*tp_new*/
+  __pyx_tp_new_17christine_hwi_ext_BBBLink, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -1382,6 +1485,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
+  {&__pyx_n_s_servo_steering, __pyx_k_servo_steering, sizeof(__pyx_k_servo_steering), 0, 0, 1, 1},
+  {&__pyx_n_s_servo_throttle, __pyx_k_servo_throttle, sizeof(__pyx_k_servo_throttle), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
@@ -1515,11 +1620,11 @@ PyMODINIT_FUNC PyInit_christine_hwi_ext(void)
   /*--- Variable export code ---*/
   /*--- Function export code ---*/
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_17christine_hwi_ext_HWI) < 0) __PYX_ERR(1, 23, __pyx_L1_error)
-  __pyx_type_17christine_hwi_ext_HWI.tp_print = 0;
-  if (PyObject_SetAttrString(__pyx_m, "HWI", (PyObject *)&__pyx_type_17christine_hwi_ext_HWI) < 0) __PYX_ERR(1, 23, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_17christine_hwi_ext_HWI) < 0) __PYX_ERR(1, 23, __pyx_L1_error)
-  __pyx_ptype_17christine_hwi_ext_HWI = &__pyx_type_17christine_hwi_ext_HWI;
+  if (PyType_Ready(&__pyx_type_17christine_hwi_ext_BBBLink) < 0) __PYX_ERR(1, 40, __pyx_L1_error)
+  __pyx_type_17christine_hwi_ext_BBBLink.tp_print = 0;
+  if (PyObject_SetAttrString(__pyx_m, "BBBLink", (PyObject *)&__pyx_type_17christine_hwi_ext_BBBLink) < 0) __PYX_ERR(1, 40, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_17christine_hwi_ext_BBBLink) < 0) __PYX_ERR(1, 40, __pyx_L1_error)
+  __pyx_ptype_17christine_hwi_ext_BBBLink = &__pyx_type_17christine_hwi_ext_BBBLink;
   /*--- Type import code ---*/
   /*--- Variable import code ---*/
   /*--- Function import code ---*/
@@ -1533,7 +1638,7 @@ PyMODINIT_FUNC PyInit_christine_hwi_ext(void)
  * 
  * import numpy as np             # <<<<<<<<<<<<<<
  * 
- * from libcpp cimport bool
+ * from libc cimport stdint
  */
   __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -1668,6 +1773,122 @@ invalid_keyword:
         function_name, key);
     #endif
     return 0;
+}
+
+/* RaiseDoubleKeywords */
+static void __Pyx_RaiseDoubleKeywordsError(
+    const char* func_name,
+    PyObject* kw_name)
+{
+    PyErr_Format(PyExc_TypeError,
+        #if PY_MAJOR_VERSION >= 3
+        "%s() got multiple values for keyword argument '%U'", func_name, kw_name);
+        #else
+        "%s() got multiple values for keyword argument '%s'", func_name,
+        PyString_AsString(kw_name));
+        #endif
+}
+
+/* ParseKeywords */
+static int __Pyx_ParseOptionalKeywords(
+    PyObject *kwds,
+    PyObject **argnames[],
+    PyObject *kwds2,
+    PyObject *values[],
+    Py_ssize_t num_pos_args,
+    const char* function_name)
+{
+    PyObject *key = 0, *value = 0;
+    Py_ssize_t pos = 0;
+    PyObject*** name;
+    PyObject*** first_kw_arg = argnames + num_pos_args;
+    while (PyDict_Next(kwds, &pos, &key, &value)) {
+        name = first_kw_arg;
+        while (*name && (**name != key)) name++;
+        if (*name) {
+            values[name-argnames] = value;
+            continue;
+        }
+        name = first_kw_arg;
+        #if PY_MAJOR_VERSION < 3
+        if (likely(PyString_CheckExact(key)) || likely(PyString_Check(key))) {
+            while (*name) {
+                if ((CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**name) == PyString_GET_SIZE(key))
+                        && _PyString_Eq(**name, key)) {
+                    values[name-argnames] = value;
+                    break;
+                }
+                name++;
+            }
+            if (*name) continue;
+            else {
+                PyObject*** argname = argnames;
+                while (argname != first_kw_arg) {
+                    if ((**argname == key) || (
+                            (CYTHON_COMPILING_IN_PYPY || PyString_GET_SIZE(**argname) == PyString_GET_SIZE(key))
+                             && _PyString_Eq(**argname, key))) {
+                        goto arg_passed_twice;
+                    }
+                    argname++;
+                }
+            }
+        } else
+        #endif
+        if (likely(PyUnicode_Check(key))) {
+            while (*name) {
+                int cmp = (**name == key) ? 0 :
+                #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
+                    (PyUnicode_GET_SIZE(**name) != PyUnicode_GET_SIZE(key)) ? 1 :
+                #endif
+                    PyUnicode_Compare(**name, key);
+                if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
+                if (cmp == 0) {
+                    values[name-argnames] = value;
+                    break;
+                }
+                name++;
+            }
+            if (*name) continue;
+            else {
+                PyObject*** argname = argnames;
+                while (argname != first_kw_arg) {
+                    int cmp = (**argname == key) ? 0 :
+                    #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION >= 3
+                        (PyUnicode_GET_SIZE(**argname) != PyUnicode_GET_SIZE(key)) ? 1 :
+                    #endif
+                        PyUnicode_Compare(**argname, key);
+                    if (cmp < 0 && unlikely(PyErr_Occurred())) goto bad;
+                    if (cmp == 0) goto arg_passed_twice;
+                    argname++;
+                }
+            }
+        } else
+            goto invalid_keyword_type;
+        if (kwds2) {
+            if (unlikely(PyDict_SetItem(kwds2, key, value))) goto bad;
+        } else {
+            goto invalid_keyword;
+        }
+    }
+    return 0;
+arg_passed_twice:
+    __Pyx_RaiseDoubleKeywordsError(function_name, key);
+    goto bad;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    goto bad;
+invalid_keyword:
+    PyErr_Format(PyExc_TypeError,
+    #if PY_MAJOR_VERSION < 3
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
+bad:
+    return -1;
 }
 
 /* PyObjectCall */

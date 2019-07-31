@@ -29,7 +29,7 @@ ext = Extension(
     language="c++",    # this causes Pyrex/Cython to create C++ source
     include_dirs=["/home/poine/work/oscar/oscar/oscar_control/include", '/opt/ros/melodic/include/', '/home/poine/work/overlay_ws/src/ros_canopen/socketcan_interface/include/'],
     extra_compile_args=["-std=c++11", "-Wno-cpp", "-Wno-unused-local-typedefs"],
-    libraries=["christine_hardware_interface", "boost_thread"],
+    libraries=["christine_remote_bbb", "boost_thread"],
     #libraries=["boost_thread"],
     library_dirs=["/opt/ros/melodic/lib/", "/home/poine/work/overlay_ws/devel/lib/"],
     runtime_library_dirs=[],

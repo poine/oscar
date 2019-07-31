@@ -7,11 +7,12 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/imu_sensor_interface.h>
 
-#include "oscar_control/christine_hwi_msg.h"
-#include <async_comm/serial.h>
+//#include <async_comm/serial.h>
 
 #define NB_JOINTS 3
 
+#include "oscar_control/christine_remote_bbb_protocol.h"
+#include "oscar_control/christine_remote_bbb.h"
 
 class ChristineSerialHWI : public hardware_interface::RobotHW
 {
@@ -24,17 +25,27 @@ class ChristineSerialHWI : public hardware_interface::RobotHW
     bool shutdown();
 
   private:
-    async_comm::Serial serial_;
-    void serial_callback(const uint8_t* buf, size_t len);
-//    void reset_parser();
-//    void parse(uint8_t b);
+    // Joints
+    double joint_position_[NB_JOINTS];
+    double joint_velocity_[NB_JOINTS];
+    double joint_effort_[NB_JOINTS];
+    double joint_effort_command_[NB_JOINTS];
+    double joint_position_command_[NB_JOINTS];
+ 
+    // IMU
+    hardware_interface::ImuSensorHandle::Data imu_data_;
+    double imu_orientation_[4];         // quat is in the order of geometry_msg, ie x, y, z, w
+    double imu_angular_velocity_[3];
+    double imu_linear_acceleration_[3];
+    
+    hardware_interface::JointStateInterface    js_interface_;
+    hardware_interface::EffortJointInterface   ej_interface_;
+    hardware_interface::PositionJointInterface pj_interface_;
+    hardware_interface::ImuSensorInterface     imu_sensor_interface_;
+    
+
+    BBBLink bbb_link_;
     void serial_msg_cbk();
-//    uint8_t parser_status_;
-//    uint8_t parser_buf_[255];
-//    uint8_t parser_buf_idx_;
-//    uint8_t parser_len_;
-    struct ChristineHWIParser parser_;
-    uint16_t out_seq_;
 };
 
 #endif // OSCAR_CONTROL__CHRISTINE_BBB_HWI_H

@@ -1,8 +1,8 @@
 //
 //
 //
-#ifndef CHRISTINE_HWI_MSG_H
-#define CHRISTINE_HWI_MSG_H
+#ifndef CHRISTINE_REMOTE_BBB_PROTOCOL_H
+#define CHRISTINE_REMOTE_BBB_PROTOCOL_H
 #include <inttypes.h>
 
 struct ChristineHardwareInput {
@@ -68,12 +68,14 @@ struct ChristineHWIParser {
   uint16_t seq;
   uint16_t err_cnt;
   //uint64_t last_rx_msg_time;
-  void (*msg_cbk)(uint8_t* buf, uint8_t len);
-  
+  void (*msg_cbk)(void* data, uint8_t* buf, uint8_t len);
+  void* msg_cbk_data;
 };
 
+
+void parser_init(struct ChristineHWIParser* self);
 void parser_reset(struct ChristineHWIParser* self);
 void parser_parse(struct ChristineHWIParser* self, uint8_t b);
 
 
-#endif // CHRISTINE_HWI_MSG_H
+#endif // CHRISTINE_REMOTE_BBB_PROTOCOL_H

@@ -160,6 +160,17 @@ target_link_libraries(oscar_ackermann_controller
   ${catkin_LIBRARIES} roboticscape 
   )
 
+add_library(christine_ackermann_controller
+  src/christine_ackermann_controller.cpp
+  src/input_manager.cpp
+  src/odometry.cpp
+  src/publisher.cpp
+  src/oac_raw_odom_publisher.cpp
+)
+target_link_libraries(christine_ackermann_controller
+  ${catkin_LIBRARIES} roboticscape 
+  )
+
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -196,7 +207,7 @@ target_link_libraries(oscar_hardware_interface_node
 
 ###
 ### Runs on the BBB - forward radio control to servos
-###
+### Minimal example
 add_executable(christine_rc_node
   src/christine_rc.c
 )
@@ -214,7 +225,7 @@ pkg_search_module(GLIB REQUIRED glib-2.0)
 
 add_executable(christine_bbb_plug
   src/christine_serial_port.cpp
-  src/christine_hwi_msg.cpp
+  src/christine_remote_bbb_protocol.cpp
   src/christine_bbb_plug.cpp
 )
 target_include_directories(christine_bbb_plug PRIVATE ${GLIB_INCLUDE_DIRS})
@@ -235,9 +246,21 @@ target_link_libraries(christine_bbb_plug ${GLIB_LDFLAGS} roboticscape)
 #   ${catkin_LIBRARIES}
 # )
 
+###
+### Runs on the Jetson - Implements ROS Hardware Interface
+###
+add_library(christine_remote_bbb
+  src/christine_remote_bbb_protocol.cpp
+  src/christine_remote_bbb.cpp
+  )
+target_link_libraries(christine_remote_bbb
+  ${async_comm_LIBRARIES}
+)
+
 add_executable(christine_serial_hwi_node
   src/christine_serial_hwi.cpp
-  src/christine_hwi_msg.cpp
+  src/christine_remote_bbb_protocol.cpp
+  src/christine_remote_bbb.cpp
 )
 
 target_link_libraries(christine_serial_hwi_node

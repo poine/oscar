@@ -9,7 +9,7 @@
 #include <robotcontrol.h>
 
 #include "oscar_control/christine_serial_port.h"
-#include "oscar_control/christine_hwi_msg.h"
+#include "oscar_control/christine_remote_bbb_protocol.h"
 
 struct FreqCnt {
   uint64_t latest_event_date;
@@ -78,7 +78,7 @@ struct Main {
 
 static struct Main _main;
 
-static void msg_cbk(uint8_t* buf, uint8_t len);
+static void msg_cbk(void* data, uint8_t* buf, uint8_t len);
 
 static void parse_data(char *buf, int len);
 static void drive_servos();
@@ -164,7 +164,7 @@ static int ros_link_send(struct ROSLink* self, struct ChristineHardwareOutputMsg
   return 0;
 }
 
-static void msg_cbk(uint8_t* buf, uint8_t len) {
+static void msg_cbk(void* data, uint8_t* buf, uint8_t len) {
 #if 0
   fprintf(stderr, "Got msg (%u)\n", len);
   for (auto i=0; i<len; i++)
