@@ -15,7 +15,7 @@
   <xacro:property name="steering_servo_no_load_speed" value="2.5" />
   <xacro:property name="rear_wheel_axle_joint_eff_limit" value="10.0" />
   <xacro:property name="rear_wheel_axle_joint_vel_limit" value="20.0" />
-  <xacro:property name="rear_wheel_joint_damping"  value="0.01" />
+  <xacro:property name="rear_wheel_joint_damping"  value="0.05" />
   <xacro:property name="rear_wheel_joint_friction" value="0.01" />
 
   <xacro:property name="front_wheel_radius"  value="0.03" />
@@ -84,7 +84,7 @@
 
   <!-- Infrared Marker -->
   <xacro:if value="${use_smocap_ir_marker}">
-    <xacro:cs_smocap_ir_marker>
+    <xacro:cs_smocap_ir_marker mesh="${smocap_ir_marker_mesh}">
       <origin xyz="0 0 0.06" rpy="0 0 0" />
     </xacro:cs_smocap_ir_marker>
   </xacro:if>
