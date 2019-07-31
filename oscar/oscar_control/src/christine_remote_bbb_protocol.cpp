@@ -69,10 +69,20 @@ void parser_parse(struct ChristineHWIParser* self, uint8_t b) {
 }
 
 
+
 void compute_checksum(uint8_t* buf, uint8_t len, uint8_t* ck1, uint8_t* ck2) {
   // TODO
+#if 1
+  *ck1 = *ck2 = 0;
+  for (int i=0; i<len; i++) {
+    *ck1 += buf[i];
+    *ck2 += *ck1;
+  }
+  
+#else
   *ck1 = 42;
   *ck2 = 43;
+#endif
 }
 
 
