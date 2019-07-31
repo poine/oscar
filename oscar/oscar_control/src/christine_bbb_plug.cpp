@@ -182,17 +182,16 @@ static void msg_cbk(void* data, uint8_t* buf, uint8_t len) {
 }
 
 static int bp_init(const char *serial_device) {
-  // initialize serial port
   _main.periodic_counter = 0;
 
+  // initialize serial port
   ros_link_init(&_main.ros_link, serial_device);
-  
-  // initialize ADCS
+  // initialize ADCS (battery monitor)
   if(rc_adc_init()){
     fprintf(stderr,"ERROR: failed to run rc_adc_init()\n");
     return -2;
   }
-  // initialize PRU
+  // initialize PRU (servos)
   if(rc_servo_init()) {
     fprintf(stderr, "Error initializing PRU servos\n");
     return -3;
@@ -202,6 +201,12 @@ static int bp_init(const char *serial_device) {
   // initialize encoder
   rc_encoder_eqep_init();
   _main.motor_pos = rc_encoder_eqep_read(1);
+  _main.motor_vel = 0.;
+  // initialize DSM (radio control)
+  if(rc_dsm_init()==-1) {
+    fprintf(stderr, "Error initializing DSM\n");
+    return -4;
+  }
   // initialize MPU
   rc_mpu_config_t conf = rc_mpu_default_config();
   conf.i2c_bus = I2C_BUS;
@@ -233,6 +238,8 @@ static void send() {
   hom.data.bat_voltage = rc_adc_batt();
   hom.data.mot_pos = _main.motor_vel;
   hom.data.mot_vel = _main.motor_vel;
+  hom.data.dsm_steering = rc_dsm_ch_normalized(2);
+  hom.data.dsm_throttle = rc_dsm_ch_normalized(3);
   hom.data.ax = _main.rc_mpu_data.accel[0];
   hom.data.ay = _main.rc_mpu_data.accel[1];
   hom.data.az = _main.rc_mpu_data.accel[2];
