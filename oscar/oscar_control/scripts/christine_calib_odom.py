@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 import rospy
 
-import two_d_guidance.ros_utils as tdgru
+import two_d_guidance.ros_utils as tdgru, two_d_guidance.plot_utils as tdgpu
 import christine_hwi_ext
 
 class Node:
@@ -45,11 +45,54 @@ class Node:
         steering, throttle = self.bbbl.get_dsm()
         self.inputs.append([steering, throttle])
         self.bbbl.send(steering, throttle)
-        mot_pos, mot_vel = self.bbbl.get_dsm()
+        mot_pos, mot_vel = self.bbbl.get_motor()
         self.mot.append([mot_pos, mot_vel])
         
 
+class CalibDataset:
+    def __init__(self):
+        pass
+
+    def load(self, filename):
+        data =  np.load(filename)
+        self.time, self.inputs, self.mot, self.pos, self.yaw = [data[w] for w in ['time', 'inputs', 'mot', 'pos', 'yaw']]
+        self.differentiate_truth_for_vel()
+
+    def differentiate_truth_for_vel(self):
+        self.pos_dts = self.time[1:] - self.time[:-1]
+        self.dpos = self.pos[1:] - self.pos[:-1]
+        self.lvel = np.array([ dp / dt for dp, dt in zip(self.dpos, self.pos_dts)])
+        self.lvel_time = (self.time[:-1] + self.time[1:])/2
         
+        
+def calibrate(filename='/tmp/foo.npz'):
+    ds = CalibDataset()
+    ds.load(filename)
+    if 0:
+        ax = plt.subplot(2,1,1)
+        plt.plot(_time, inputs[:,1])
+        tdgpu.decorate(ax, title='throttle', xlab='time', ylab='%')
+        ax = plt.subplot(2,1,2)
+        plt.plot(_time, mot[:,1])
+        tdgpu.decorate(ax, title='mot_vel', xlab='time', ylab='blahhh')
+    if 0:
+        ax = plt.subplot(2,1,1)
+        plt.plot(ds.time, ds.pos[:,0])
+        plt.plot(ds.time, ds.pos[:,1])
+        tdgpu.decorate(ax, title='pos', xlab='time', ylab='m')
+        ax = plt.subplot(2,1,2)
+        plt.plot(ds.time, ds.yaw)
+        tdgpu.decorate(ax, title='yaw', xlab='time', ylab='rad')
+    if 1:
+        ax = plt.subplot(2,1,1)
+        plt.plot(ds.lvel_time, np.linalg.norm(ds.lvel, axis=1))
+        tdgpu.decorate(ax, title='lvel', xlab='time', ylab='m/s')
+        ax = plt.subplot(2,1,2)
+        plt.plot(ds.time, ds.inputs[:,1])
+        tdgpu.decorate(ax, title='motor rvel', xlab='time', ylab='tick/s')
+        
+    plt.show()
+    
             
 def measure(filename='/tmp/foo.npz'):
     bbbl = christine_hwi_ext.BBBLink()
@@ -78,10 +121,12 @@ def plot(filename='/tmp/foo.npz'):
 def main(args):
     #measure()
     #plot()
-    if 1: # send calibration inputs
+    if 0: # send calibration inputs
         rospy.init_node('christine_calibration')
         Node().run()
-
+    else:
+        calibrate()
+        
 if __name__ == '__main__':
     main(sys.argv)
 
