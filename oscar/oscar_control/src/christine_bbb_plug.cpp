@@ -227,11 +227,22 @@ static void bp_deinit() {
 }
 
 
-
+#define _DEG2RAD(_D) _D/180.*M_PI
 static void send() {
   struct ChristineHardwareOutputMsg hom;
   hom.data.bat_voltage = rc_adc_batt();
+  hom.data.mot_pos = _main.motor_vel;
   hom.data.mot_vel = _main.motor_vel;
+  hom.data.ax = _main.rc_mpu_data.accel[0];
+  hom.data.ay = _main.rc_mpu_data.accel[1];
+  hom.data.az = _main.rc_mpu_data.accel[2];
+  hom.data.gx = _DEG2RAD(_main.rc_mpu_data.gyro[0]);
+  hom.data.gy = _DEG2RAD(_main.rc_mpu_data.gyro[1]);
+  hom.data.gz = _DEG2RAD(_main.rc_mpu_data.gyro[2]);
+  hom.data.qw = _main.rc_mpu_data.dmp_quat[0];
+  hom.data.qx = _main.rc_mpu_data.dmp_quat[1];
+  hom.data.qy = _main.rc_mpu_data.dmp_quat[2];
+  hom.data.qz = _main.rc_mpu_data.dmp_quat[3];
   ros_link_send(&_main.ros_link, &hom);
 }
 
@@ -254,7 +265,7 @@ gboolean periodic_callback(gpointer data)
 {
   _main.periodic_counter += 1;
   uint64_t delay = rc_nanos_since_boot()-_main.ros_link.rx_time_stats.latest_event_date;
-  if (delay > uint64_t(0.2*1e-9)) { // 200 000 000
+  if (delay > uint64_t(0.2*1e9)) { // 200 000 000
     _main.setpoint_vel = 0, _main.setpoint_steering=0;
     //drive_servos();
   }
