@@ -13,7 +13,8 @@ def main(args):
     while True:
         _start = time.time()
         #steering, throttle = 0.17 + 0.5*np.sin(0.9*_start), 0.
-        steering, throttle = bbbl.get_dsm()
+        steering, throttle = bbbl.get_dsm();
+        if throttle>0: throttle = 0.06
         bbbl.send(steering, throttle)
         _end = time.time(); elapsed = _end - _start
         time_to_sleep = dt - elapsed

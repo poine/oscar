@@ -3,9 +3,54 @@ import sys, time
 import numpy as np
 import matplotlib.pyplot as plt
 
+import rospy
+
+import two_d_guidance.ros_utils as tdgru
 import christine_hwi_ext
 
+class Node:
+    def __init__(self):
+        self.bbbl = christine_hwi_ext.BBBLink()
+        self.bbbl.init()
+        self.robot_listener = tdgru.SmocapListener()
+        self.time, self.inputs, self.mot, self.pos, self.yaw = [], [], [], [], []
 
+    def run(self):
+        self.rate = rospy.Rate(30.)
+        while not rospy.is_shutdown():
+            self.periodic()
+            self.rate.sleep()
+        print('exiting')
+        self.save()
+
+    def save(self, filename='/tmp/foo.npz'):
+        print('saving {} sample to {}'.format(len(self.time), filename))
+        np.savez(filename, time=self.time, inputs=self.inputs, mot=self.mot, pos=self.pos, yaw=self.yaw)
+
+    def periodic(self):
+        self.time.append(time.time())
+        try:
+            p0, psi = self.robot_listener.get_loc_and_yaw()
+            #_unused, self.alpha = self.ctl.compute_looped(p0, psi)
+            #self.publish_ackermann_cmd(self.alpha, self.vel_sp.get_pwm(rospy.Time.now().to_sec()))
+            self.pos.append(p0); self.yaw.append(psi)
+        except tdgru.RobotLostException:
+            print('robot lost\r')
+            self.pos.append([np.nan, np.nan]); self.yaw.append(np.nan)
+        except tdgru.RobotNotLocalizedException:
+            print('robot not localized\r')
+            self.pos.append([np.nan, np.nan]); self.yaw.append(np.nan)
+
+
+        steering, throttle = self.bbbl.get_dsm()
+        self.inputs.append([steering, throttle])
+        self.bbbl.send(steering, throttle)
+        mot_pos, mot_vel = self.bbbl.get_dsm()
+        self.mot.append([mot_pos, mot_vel])
+        
+
+        
+            
 def measure(filename='/tmp/foo.npz'):
     bbbl = christine_hwi_ext.BBBLink()
     bbbl.init()
@@ -31,8 +76,11 @@ def plot(filename='/tmp/foo.npz'):
     plt.show()
 
 def main(args):
-    measure()
+    #measure()
     #plot()
+    if 1: # send calibration inputs
+        rospy.init_node('christine_calibration')
+        Node().run()
 
 if __name__ == '__main__':
     main(sys.argv)
