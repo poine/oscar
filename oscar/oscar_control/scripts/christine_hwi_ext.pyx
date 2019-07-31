@@ -36,6 +36,7 @@ cdef extern from "oscar_control/christine_remote_bbb.h":
         bool send2(float steering, float throttle)
         void get_bat(float* bat)
         void get_motor(float* pos, float* vel)
+        void get_dsm(float* steering, float* throttle)
   
 cdef class BBBLink:
     cdef c_BBB_LINK *thisptr
@@ -49,10 +50,17 @@ cdef class BBBLink:
     def send(self, servo_steering, servo_throttle):
         self.thisptr.send2(servo_steering, servo_throttle)
 
+    def get_bat(self):
+        cdef float bat
+        self.thisptr.get_bat(&bat)
+        return bat
+        
     def get_motor(self):
-        cdef float mot_pos# = 0
-        cdef float mot_vel# = 0
+        cdef float mot_pos, mot_vel
         self.thisptr.get_motor(&mot_pos, &mot_vel)
         return mot_pos, mot_vel
-    # def shutdown(self):
-    #     return self.thisptr.shutdown()
+
+    def get_dsm(self):
+        cdef float steering, throttle
+        self.thisptr.get_dsm(&steering, &throttle)
+        return steering, throttle
