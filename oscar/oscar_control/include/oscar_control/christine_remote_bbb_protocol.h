@@ -12,19 +12,20 @@ struct ChristineHardwareInput {
 
 struct ChristineHardwareOutput {
   float bat_voltage;
+  int32_t mot_pos;
   float mot_vel;
-  /* float mot_enc; */
-  /* float mot_vel; */
-  /* float ax; */
-  /* float ay; */
-  /* float az; */
-  /* float gx; */
-  /* float gy; */
-  /* float gz; */
-  /* float qw; */
-  /* float qx; */
-  /* float qy; */
-  /* float qz; */
+  float dsm_steering;
+  float dsm_throttle;
+  float ax;
+  float ay;
+  float az;
+  float gx;
+  float gy;
+  float gz;
+  float qw;
+  float qx;
+  float qy;
+  float qz;
 };
 
 
