@@ -236,7 +236,7 @@ static void bp_deinit() {
 static void send() {
   struct ChristineHardwareOutputMsg hom;
   hom.data.bat_voltage = rc_adc_batt();
-  hom.data.mot_pos = _main.motor_vel;
+  hom.data.mot_pos = _main.motor_pos;
   hom.data.mot_vel = _main.motor_vel;
   hom.data.dsm_steering = rc_dsm_ch_normalized(2);
   hom.data.dsm_throttle = rc_dsm_ch_normalized(3);
