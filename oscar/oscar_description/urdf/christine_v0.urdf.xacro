@@ -1,19 +1,39 @@
 <?xml version="1.0"?>
 <robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!--<xacro:include filename="$(find oscar_description)/urdf/oscar_defaults.urdf.xacro" /> -->
+  <xacro:include filename="$(find oscar_description)/urdf/oscar_defaults.urdf.xacro" />
+
+  <xacro:property name="chassis_length" value="0.08" />
+  <xacro:property name="chassis_width"  value="0.065" />
+  <xacro:property name="chassis_height" value="0.01" />
+  <xacro:property name="chassis_mass"   value="0.20" />
+  <xacro:property name="chassis_dx"     value="0.04" />
+
+  
+  <xacro:property name="left_wheel_radius"  value="0.04" />
+  <xacro:property name="right_wheel_radius" value="0.04" />
+  <xacro:property name="wheel_track"   value="0.205" />
+  <xacro:property name="wheel_width"  value="0.04" />
+  <xacro:property name="front_wheel_radius"  value="0.04" />
+  <xacro:property name="front_wheel_L" value="0.27" />
+  <xacro:property name="front_wheel_width"   value="0.03" />
   
   <xacro:property name="use_camera" value="true" />
   <xacro:property name="cam_name" value="camera_road_front" />
   <xacro:property name="cam_hd_visual" value="true" />
-  <xacro:property name="cam_cl_to_ref_xyz" value="0.19881951 -0.00770707  0.13167937" />
-  <xacro:property name="cam_cl_to_ref_rpy" value="0.02039069  0.35225342  0.06052593" />
+  <!-- initial wood mount -->
+  <!-- <xacro:property name="cam_cl_to_ref_xyz" value="0.19881951 -0.00770707  0.13167937" /> -->
+  <!-- <xacro:property name="cam_cl_to_ref_rpy" value="0.02039069  0.35225342  0.06052593" /> -->
+  <!-- new printed mount -->
+  <xacro:property name="cam_cl_to_ref_xyz" value="0.24041413  0.00764807  0.17355088" />
+  <xacro:property name="cam_cl_to_ref_rpy" value="-4.83558341e-04   5.51295376e-01   4.91191358e-02" />
 
+  <xacro:property name="use_eachine_camera" value="false"/>
+  
   <xacro:property name="use_smocap_ir_marker" value="False" />
   
-  <xacro:property name="high_definition_wheel_visual" value="True" />
+  <xacro:property name="high_definition_wheel_visual"  value="True" />
   <xacro:property name="high_definition_camera_visual" value="True" />
-
   
   <xacro:include filename="$(find oscar_description)/urdf/oscar.urdf.xacro" />
   
