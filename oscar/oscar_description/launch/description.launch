@@ -1,17 +1,23 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="config" default="oscar_v0" />
+  <arg name="config" default="christine_v0" />
   <arg name="load_urdf" default="true" />
-
+  <arg name="start_state_publisher" default="true" />
+  
   <group if="$(arg load_urdf)">
     <param name="$(arg config)/robot_description" command="$(find xacro)/xacro --inorder $(find oscar_description)/urdf/$(arg config).urdf.xacro" />
   </group>
   
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
-    <remap from="robot_description" to="$(arg config)/robot_description" />
-    <!-- Can't get namespace to work in gazebo
-	 <remap from="joint_states" to="$(arg config)/joint_states" />
-    -->
-  </node>
+  <group if="$(arg start_state_publisher)">
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+      <!-- <remap from="robot_description" to="christine_v0/robot_description" /> -->
+      <remap from="robot_description" to="oscar_v0/robot_description" />
+      <!-- <remap from="robot_description" to="$(arg config)/robot_description" /> -->
+      <!-- Can't get namespace to work in gazebo -->
+	   <remap from="joint_states" to="$(arg config)/joint_states" />
+      <!-- -->
+    </node>
+  </group>
+    
 
 </launch>
