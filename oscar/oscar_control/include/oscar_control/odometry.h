@@ -59,7 +59,7 @@ public:
      */
     double getX() const
     {
-        return x_ + wheelbase_ * (1.0 - cos(heading_));
+        return x_ + wheel_base_ * (1.0 - cos(heading_));
     }
 
     /**
@@ -68,7 +68,7 @@ public:
      */
     double getY() const
     {
-        return y_ - wheelbase_ * sin(heading_);
+        return y_ - wheel_base_ * sin(heading_);
     }
 
     /**
@@ -89,9 +89,9 @@ public:
         return angular_;
     }
 
-    void setWheelbase(double wheelbase)
+    void setWheelbase(double wheel_base)
     {
-        wheelbase_ = wheelbase;
+        wheel_base_ = wheel_base;
     }
 
     /**
@@ -99,6 +99,9 @@ public:
      * \param velocity_rolling_window_size Velocity rolling window size
      */
     void setVelocityRollingWindowSize(size_t velocity_rolling_window_size);
+    void setWheelRadius(const double _wr) { wheel_radius_ = _wr;}
+    //void setWheelSep(const double _ws) { wheel_sep_ = _ws;}
+    
 
 private:
 
@@ -137,8 +140,9 @@ private:
     double linear_;  //   [m/s]
     double angular_; // [rad/s]
 
-    double wheelbase_;
-    double wheel_radius_;
+    double wheel_base_;    // dist beween back and front wheels
+    //double wheel_sep_;     // dist beween back and front wheels
+    double wheel_radius_;  // wheel radius
 
     /// Previou wheel position/state [rad]:
     //std::map<std::string, double> wheels_old_pos_;

@@ -64,27 +64,33 @@ bool ChristineSerialHWI::start() {
   return bbb_link_.init();
 }
 
+
+#define ENC_CPR (64.5/(2*M_PI)) // number of encoder pulse per radian
+//#define WR      0.041           // wheel radius
+#define MOT_RVEL_TO_CPS(_v) (_v*ENC_CPR)
+#define MOT_CPS_TO_RVEL(_cps) (_cps/ENC_CPR)
+#define RAD_TO_STEERING_SERVO(_r) (_r*1.523)
+
 void ChristineSerialHWI::read(ros::Time now) {
   float motor_pos, motor_vel;
   bbb_link_.get_motor(&motor_pos, &motor_vel);
   float bat;
   bbb_link_.get_bat(&bat);
   float a[3]; bbb_link_.get_accel(a);
-  std::printf("\r  bat %.2f pos: %.2f vel %.2f accel %.1f %.1f %.1f", bat, motor_pos, motor_vel, a[0], a[1], a[2]);
-  joint_position_[2] = joint_position_command_[2];
-  
+  //std::printf("\r  bat %.2f pos: %.2f vel %.2f accel %.1f %.1f %.1f", bat, motor_pos, motor_vel, a[0], a[1], a[2]);
+  joint_velocity_[0] = MOT_CPS_TO_RVEL(motor_vel);
+  joint_position_[0] = MOT_CPS_TO_RVEL(motor_pos);
+  joint_position_[2] = joint_position_command_[2];  // steering servo, no feedback
 }
-
-
 
 void ChristineSerialHWI::write() {
   struct ChristineHardwareInputMsg him;
 
   //double now = ros::Time::now().toSec();
-  float _steering = joint_position_command_[2];//0.5*sin(now);
-  float _lvel = joint_effort_command_[0];//0.07*(sin(now)+1); // FIXME
+  float _steering = RAD_TO_STEERING_SERVO(joint_position_command_[2]);
+  float _mot_rvel = joint_effort_command_[0]; // FIXME
   him.data.steering_srv = _steering;
-  him.data.throttle_servo = _lvel;
+  him.data.throttle_servo = MOT_RVEL_TO_CPS(_mot_rvel);
 
   bbb_link_.send(&him);
 

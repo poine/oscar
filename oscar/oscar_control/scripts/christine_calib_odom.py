@@ -150,7 +150,7 @@ def plot(filename='/tmp/foo.npz'):
 def main(args):
     #measure()
     #plot()
-    if 0: # send calibration inputs
+    if 1: # send calibration inputs
         rospy.init_node('christine_calibration')
         Node().run()
     else:
