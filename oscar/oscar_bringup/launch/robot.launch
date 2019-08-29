@@ -5,6 +5,7 @@
   <arg name="start_hardware" default="true"/>
   <arg name="load_urdf" default="true"/>
   <arg name="start_description" default="true"/>
+  <arg name="start_control" default="true"/>
   <arg name="start_teleop" default="false"/>
   <arg name="start_multimaster" default="false"/>
   
@@ -22,7 +23,11 @@
   </group>
   
   <!-- launch controllers nodes -->  
-  <include file="$(find oscar_control)/launch/control.launch" />
+  <group if="$(arg start_control)">
+    <include file="$(find oscar_control)/launch/control.launch">
+      <arg name="config" value="$(arg config)" />
+    </include>
+  </group>
   
   <!-- launch teleop node -->
   <group if="$(arg start_teleop)">
