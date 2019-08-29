@@ -6,12 +6,11 @@ namespace oscar_controller {
 #define __NAME "christine_ackermann_controller"
 
   // Geometry
-#define WHEEL_BASE   0.09
-  //#define WHEEL_BASE   0.1
-#define WHEEL_RADIUS 0.03
-  //#define GEOM_L 0.1
-  //#define GEOM_D 0.1
-#define GEOM_L 0.3
+#define WHEEL_BASE    0.27
+#define WHEEL_RADIUS  0.041
+  //#define WHEEL_SEP     0.27
+
+#define GEOM_L 0.27
 #define GEOM_D 0.09
 
   // Odometry
@@ -57,6 +56,8 @@ namespace oscar_controller {
 
     input_manager_.init(hw, controller_nh);
     odometry_.init(WHEEL_BASE, VELOCITY_ROLLING_WINDOW_SIZE);
+    odometry_.setWheelRadius(WHEEL_RADIUS);
+    //odometry_.setWheelSep(WHEEL_SEP);
     publisher_.init(root_nh, controller_nh);
     //debug_io_publisher_.init(root_nh, controller_nh);
     //raw_odom_publisher_.init(root_nh, controller_nh);
@@ -90,8 +91,9 @@ namespace oscar_controller {
     compute_control(now);
 
     steering_joint_.setCommand(steering_angle_);
-    left_wheel_joint_.setCommand(lvel_sp_);
-    right_wheel_joint_.setCommand(lvel_sp_);
+    double mot_rvel = lvel_sp_ / WHEEL_RADIUS;
+    left_wheel_joint_.setCommand(mot_rvel);
+    right_wheel_joint_.setCommand(mot_rvel);
     
     publisher_.publish(odometry_.getHeading(), odometry_.getX(), odometry_.getY(), odometry_.getLinear(), odometry_.getAngular(), now);
     //double left_wheel_angle = left_wheel_joint_.getPosition();

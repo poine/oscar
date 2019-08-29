@@ -103,11 +103,6 @@ bool OscarHardwareInterface::start() {
     ROS_ERROR("in OscarHardwareInterface::start: failed to initialize eqep");
     return -1;
   }
-  // motors
-  // if (rc_motor_init_freq(RC_MOTOR_DEFAULT_PWM_FREQ)) {
-  //   ROS_ERROR("in OscarHardwareInterface::start: failed to initialize motors");
-  //   return -1;
-  // }
   // IMU
   rc_mpu_config_t conf = rc_mpu_default_config();
   conf.i2c_bus = I2C_BUS;

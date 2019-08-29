@@ -9,9 +9,9 @@
   
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
     <remap from="robot_description" to="$(arg config)/robot_description" />
-    <!-- Can't get namespace to work in gazebo
-	 <remap from="joint_states" to="$(arg config)/joint_states" />
-    -->
+    <!-- Can't get namespace to work in gazebo -->
+    <remap from="joint_states" to="christine/joint_states" />
+    <!-- -->
   </node>
 
 </launch>

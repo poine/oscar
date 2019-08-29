@@ -7,7 +7,7 @@
 
 struct ChristineHardwareInput {
   float steering_srv;
-  float throttle_servo;
+  float throttle_servo; // FIXME this is lin vel setpoint
 };
 
 struct ChristineHardwareOutput {
