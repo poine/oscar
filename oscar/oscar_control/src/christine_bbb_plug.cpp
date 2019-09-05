@@ -8,9 +8,24 @@
 
 #include <robotcontrol.h>
 
+#include "roverboard_odrive/roverboard_odrive_can.h"
 #include "oscar_control/christine_serial_port.h"
 #include "oscar_control/christine_remote_bbb_protocol.h"
 
+
+//
+// This runs on a beaglebone blue. It talks to a master computer through a serial link.
+// It drives an odrive for motor and a servo for steering
+// It reports odrive motor odometry as well as IMU and radio control
+//
+
+
+//#define USE_BBB_ENCODERS
+
+
+//
+// messages profiler
+//
 struct FreqCnt {
   uint64_t latest_event_date;
   float period;
@@ -36,7 +51,9 @@ void freq_cnt_record(struct FreqCnt* self, uint64_t now) {
 }
 
 
-
+//
+// messages link
+//
 struct ROSLink {
   // serial port
   struct SerialPort* sp; int sp_fd; GIOChannel *channel;
@@ -60,9 +77,8 @@ struct Main {
 
   struct ROSLink ros_link;
   // received from ROS
-  float setpoint_steering;
-  float setpoint_vel;
-  
+  float setpoint_steering;  // normalized (-1, 1)
+  float setpoint_vel;       // cps (enc click per sec)
 
   // sent to servos
   float steering_servo_input;
@@ -74,6 +90,16 @@ struct Main {
 
   // IMU
   rc_mpu_data_t rc_mpu_data;
+
+  // Odrive
+  OdriveCAN* odrv;
+  // sent to odrive
+  double vsps[2];
+  double iffs[2];
+  // read from odrive
+  double pos[2], vel[2];
+  double iqsp[2], iqm[2];
+  
 };
 
 static struct Main _main;
@@ -95,6 +121,8 @@ static void display();
 static void __mpu_cbk(void) {
   //fprintf(stderr, "mpu\n");
   drive_servos();
+  _main.vsps[0] = _main.setpoint_vel;
+  _main.odrv->sendVelSetpoints(_main.vsps, _main.iffs);
 }
 
 // Serial communications 
@@ -198,10 +226,12 @@ static int bp_init(const char *serial_device) {
   }
   // TODO/WARNING: not turned off
   rc_servo_power_rail_en(1);
+#ifdef USE_BBB_ENCODERS
   // initialize encoder
   rc_encoder_eqep_init();
   _main.motor_pos = rc_encoder_eqep_read(1);
   _main.motor_vel = 0.;
+#endif
   // initialize DSM (radio control)
   if(rc_dsm_init()==-1) {
     fprintf(stderr, "Error initializing DSM\n");
@@ -220,12 +250,16 @@ static int bp_init(const char *serial_device) {
     return -4;
   }
   rc_mpu_set_dmp_callback(&__mpu_cbk);
-  
+
+  _main.odrv = new OdriveCAN();
+  _main.vsps[0] = 0.;
+  _main.iffs[0] = 0.;
+  _main.odrv->init();
   return 0;
 }
 
 static void bp_deinit() {
-  // TODO serial port
+  // TODO serial port, bbb encoders
   rc_adc_cleanup();
   rc_servo_power_rail_en(0);
   rc_servo_cleanup();
@@ -236,8 +270,13 @@ static void bp_deinit() {
 static void send() {
   struct ChristineHardwareOutputMsg hom;
   hom.data.bat_voltage = rc_adc_batt();
+#ifdef USE_BBB_ENCODERS
   hom.data.mot_pos = _main.motor_vel;
   hom.data.mot_vel = _main.motor_vel;
+#else
+  hom.data.mot_pos = _main.pos[0];
+  hom.data.mot_vel = _main.vel[0];
+#endif
   hom.data.dsm_steering = rc_dsm_ch_normalized(2);
   hom.data.dsm_throttle = rc_dsm_ch_normalized(3);
   hom.data.ax = _main.rc_mpu_data.accel[0];
@@ -254,18 +293,18 @@ static void send() {
 }
 
 static void drive_servos() {
-  _main.steering_servo_input = _main.setpoint_steering + 0.175;
-  _main.throttle_servo_input = _main.setpoint_vel;
+  _main.steering_servo_input = _main.setpoint_steering + 0.135; //0.13; //0.175
+  //_main.throttle_servo_input = _main.setpoint_vel;
   rc_servo_send_pulse_normalized(1, _main.steering_servo_input);
-  rc_servo_send_pulse_normalized(2, _main.throttle_servo_input);
+  //rc_servo_send_pulse_normalized(2, _main.throttle_servo_input);
 }
 
 
 static void display() {
   float time_since_last_msg = freq_cnt_sec_since_last_event(&_main.ros_link.rx_time_stats, rc_nanos_since_boot());
   fprintf(stderr, "\rrx: last %.2fs freq %.1fhz err %d ", time_since_last_msg, _main.ros_link.rx_time_stats.freq, _main.ros_link.parser.err_cnt);
-  fprintf(stderr, "servos: %.01f %.01f %%", _main.steering_servo_input*100, _main.throttle_servo_input*100);
-
+  fprintf(stderr, "servos: %.01f %.01f %% ", _main.steering_servo_input*100, _main.throttle_servo_input*100);
+  fprintf(stderr, "motor sp: % 5.01f cps", _main.vsps[0]);
 }
 
 gboolean periodic_callback(gpointer data)
@@ -276,10 +315,13 @@ gboolean periodic_callback(gpointer data)
     _main.setpoint_vel = 0, _main.setpoint_steering=0;
     //drive_servos();
   }
+#ifdef USE_BBB_ENCODERS
   int tmp = rc_encoder_eqep_read(1);
   float klp = 0.8;
   _main.motor_vel = klp*_main.motor_vel + (1-klp)*float(tmp-_main.motor_pos);
   _main.motor_pos = tmp;
+#endif
+  _main.odrv->readFeedback(_main.pos, _main.vel, _main.iqsp, _main.iqm);
   send();
   if (_main.periodic_counter%10 == 0)
     display();
