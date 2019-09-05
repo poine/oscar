@@ -20,7 +20,12 @@
 //
 
 
-//#define USE_BBB_ENCODERS
+#define DSM_CHAN_STEERING 2
+#define DSM_CHAN_THROTTLE 3
+#define DSM_CHAN_MODE     5
+
+#define DSM_MODE_AUTO    0.9
+#define DSM_MODE_MANUAL -0.9
 
 
 //
@@ -76,21 +81,24 @@ struct Main {
   uint32_t periodic_counter;
 
   struct ROSLink ros_link;
-  // received from ROS
-  float setpoint_steering;  // normalized (-1, 1)
-  float setpoint_vel;       // cps (enc click per sec)
-
-  // sent to servos
-  float steering_servo_input;
-  float throttle_servo_input;
-
-  // computed from motor encoder
-  float   motor_vel;
-  int32_t motor_pos;
+  // received from link (ROS)
+  uint8_t link_valid;
+  float link_setpoint_steering;  // normalized (-1, 1)
+  float link_setpoint_vel;       // cps (enc click per sec)
 
   // IMU
   rc_mpu_data_t rc_mpu_data;
 
+  // DSM
+  uint8_t dsm_valid;
+  float dsm_throttle;
+  float dsm_steering;
+  float dsm_mode;
+
+  // What we will feed to actuators
+  float act_setpoint_steering;  // normalized (-1, 1)
+  float act_setpoint_vel;       // cps (enc click per sec)
+  
   // Odrive
   OdriveCAN* odrv;
   // sent to odrive
@@ -100,6 +108,10 @@ struct Main {
   double pos[2], vel[2];
   double iqsp[2], iqm[2];
   
+  // Servos
+  float steering_servo_input;
+  //float throttle_servo_input;
+  
 };
 
 static struct Main _main;
@@ -107,7 +119,7 @@ static struct Main _main;
 static void msg_cbk(void* data, uint8_t* buf, uint8_t len);
 
 static void parse_data(char *buf, int len);
-static void drive_servos();
+static void drive_actuators();
 static void display();
 
 // IMU
@@ -119,10 +131,28 @@ static void display();
 #define IMU_DT (1./IMU_SAMPLE_RATE_HZ)
 
 static void __mpu_cbk(void) {
+  if (_main.dsm_valid) {
+    if (_main.dsm_mode > DSM_MODE_MANUAL) {
+      _main.act_setpoint_steering = _main.dsm_steering;
+      _main.act_setpoint_vel = _main.dsm_throttle*1000.; // FIXME
+    }
+    else {
+      _main.act_setpoint_steering = _main.link_setpoint_steering;
+      _main.act_setpoint_vel = _main.link_setpoint_vel;
+    }
+  }
+  else {
+    if (_main.link_valid) {
+      _main.act_setpoint_steering =  _main.link_setpoint_steering;
+      _main.act_setpoint_vel = _main.link_setpoint_vel;
+    }
+    else {
+      _main.act_setpoint_steering = 0;
+      _main.act_setpoint_vel = 0;
+    }
+  }
   //fprintf(stderr, "mpu\n");
-  drive_servos();
-  _main.vsps[0] = _main.setpoint_vel;
-  _main.odrv->sendVelSetpoints(_main.vsps, _main.iffs);
+  drive_actuators();
 }
 
 // Serial communications 
@@ -200,13 +230,9 @@ static void msg_cbk(void* data, uint8_t* buf, uint8_t len) {
   fprintf(stderr, "\n");
 #endif
   freq_cnt_record(&_main.ros_link.rx_time_stats, rc_nanos_since_boot());
-  memcpy(&_main.setpoint_steering, buf, sizeof(float));
-  memcpy(&_main.setpoint_vel, buf+sizeof(float), sizeof(float));
+  memcpy(&_main.link_setpoint_steering, buf, sizeof(float));
+  memcpy(&_main.link_setpoint_vel, buf+sizeof(float), sizeof(float));
   
-  //struct ChristineHardwareInput* hi = reinterpret_cast<struct ChristineHardwareInput*>(buf);
-  //struct ChristineHardwareInput* hi = (struct ChristineHardwareInput*)buf;
-  //fprintf(stderr, "  steering: %f\n", hi->steering_srv);
-
 }
 
 static int bp_init(const char *serial_device) {
@@ -214,11 +240,21 @@ static int bp_init(const char *serial_device) {
 
   // initialize serial port
   ros_link_init(&_main.ros_link, serial_device);
+  _main.link_valid = false;
+
   // initialize ADCS (battery monitor)
   if(rc_adc_init()){
     fprintf(stderr,"ERROR: failed to run rc_adc_init()\n");
     return -2;
   }
+
+  // initialize DSM (radio control)
+  if(rc_dsm_init()==-1) {
+    fprintf(stderr, "Error initializing DSM\n");
+    return -4;
+  }
+  _main.dsm_valid = 0;
+
   // initialize PRU (servos)
   if(rc_servo_init()) {
     fprintf(stderr, "Error initializing PRU servos\n");
@@ -226,17 +262,8 @@ static int bp_init(const char *serial_device) {
   }
   // TODO/WARNING: not turned off
   rc_servo_power_rail_en(1);
-#ifdef USE_BBB_ENCODERS
-  // initialize encoder
-  rc_encoder_eqep_init();
-  _main.motor_pos = rc_encoder_eqep_read(1);
-  _main.motor_vel = 0.;
-#endif
-  // initialize DSM (radio control)
-  if(rc_dsm_init()==-1) {
-    fprintf(stderr, "Error initializing DSM\n");
-    return -4;
-  }
+
+
   // initialize MPU
   rc_mpu_config_t conf = rc_mpu_default_config();
   conf.i2c_bus = I2C_BUS;
@@ -259,7 +286,7 @@ static int bp_init(const char *serial_device) {
 }
 
 static void bp_deinit() {
-  // TODO serial port, bbb encoders
+  // TODO serial port
   rc_adc_cleanup();
   rc_servo_power_rail_en(0);
   rc_servo_cleanup();
@@ -270,15 +297,13 @@ static void bp_deinit() {
 static void send() {
   struct ChristineHardwareOutputMsg hom;
   hom.data.bat_voltage = rc_adc_batt();
-#ifdef USE_BBB_ENCODERS
-  hom.data.mot_pos = _main.motor_pos;
-  hom.data.mot_vel = _main.motor_vel;
-#else
   hom.data.mot_pos = _main.pos[0];
   hom.data.mot_vel = _main.vel[0];
-#endif
-  hom.data.dsm_steering = rc_dsm_ch_normalized(2);
-  hom.data.dsm_throttle = rc_dsm_ch_normalized(3);
+  hom.data.dsm_steering = _main.dsm_steering;
+  hom.data.dsm_throttle = _main.dsm_throttle;
+  //hom.data.dsm_mode = _main.dsm_mode;
+  //hom.data.dsm_valid = _main.dsm_valid;
+  
   hom.data.ax = _main.rc_mpu_data.accel[0];
   hom.data.ay = _main.rc_mpu_data.accel[1];
   hom.data.az = _main.rc_mpu_data.accel[2];
@@ -292,36 +317,39 @@ static void send() {
   ros_link_send(&_main.ros_link, &hom);
 }
 
-static void drive_servos() {
-  _main.steering_servo_input = _main.setpoint_steering + 0.135; //0.13; //0.175
-  //_main.throttle_servo_input = _main.setpoint_vel;
+static void drive_actuators() {
+  _main.steering_servo_input = _main.act_setpoint_steering + 0.135; //0.13; //0.175
   rc_servo_send_pulse_normalized(1, _main.steering_servo_input);
-  //rc_servo_send_pulse_normalized(2, _main.throttle_servo_input);
+  _main.vsps[0] = abs(_main.act_setpoint_vel) > 20 ? _main.act_setpoint_vel : 0;
+  _main.odrv->sendVelSetpoints(_main.vsps, _main.iffs);
 }
 
+static void read_dsm() {
+  _main.dsm_valid    = rc_dsm_is_connection_active();
+  _main.dsm_steering = rc_dsm_ch_normalized(DSM_CHAN_STEERING);
+  _main.dsm_throttle = rc_dsm_ch_normalized(DSM_CHAN_THROTTLE);
+  _main.dsm_mode     = rc_dsm_ch_normalized(DSM_CHAN_MODE);
+}
 
 static void display() {
   float time_since_last_msg = freq_cnt_sec_since_last_event(&_main.ros_link.rx_time_stats, rc_nanos_since_boot());
-  fprintf(stderr, "\rrx: last %.2fs freq %.1fhz err %d ", time_since_last_msg, _main.ros_link.rx_time_stats.freq, _main.ros_link.parser.err_cnt);
-  fprintf(stderr, "servos: %.01f %.01f %% ", _main.steering_servo_input*100, _main.throttle_servo_input*100);
-  fprintf(stderr, "motor sp: % 5.01f cps", _main.vsps[0]);
+  fprintf(stderr, "\rLINK: last %.2fs freq %.1fhz err %d | ", time_since_last_msg, _main.ros_link.rx_time_stats.freq, _main.ros_link.parser.err_cnt);
+  if (_main.dsm_valid)
+    fprintf(stderr, "DSM: %.01f %.01f %.01f | ", _main.dsm_steering, _main.dsm_throttle, _main.dsm_mode);
+  else
+    fprintf(stderr, "DSM: N/A               | ");
+  fprintf(stderr, "SERVOS: %.01f %% | ", _main.steering_servo_input*100);
+  fprintf(stderr, "ODRIVE: sp: % 5.01f cps cur %.01f A%%", _main.vsps[0],  _main.iqsp[0]);
 }
 
 gboolean periodic_callback(gpointer data)
 {
   _main.periodic_counter += 1;
-  uint64_t delay = rc_nanos_since_boot()-_main.ros_link.rx_time_stats.latest_event_date;
-  if (delay > uint64_t(0.2*1e9)) { // 200 000 000
-    _main.setpoint_vel = 0, _main.setpoint_steering=0;
-    //drive_servos();
-  }
-#ifdef USE_BBB_ENCODERS
-  int tmp = rc_encoder_eqep_read(1);
-  float klp = 0.8;
-  _main.motor_vel = klp*_main.motor_vel + (1-klp)*float(tmp-_main.motor_pos);
-  _main.motor_pos = tmp;
-#endif
+  uint64_t link_delay = rc_nanos_since_boot()-_main.ros_link.rx_time_stats.latest_event_date;
+  _main.link_valid = link_delay > uint64_t(0.2*1e9)?false:true;
+
   _main.odrv->readFeedback(_main.pos, _main.vel, _main.iqsp, _main.iqm);
+  read_dsm();
   send();
   if (_main.periodic_counter%10 == 0)
     display();
