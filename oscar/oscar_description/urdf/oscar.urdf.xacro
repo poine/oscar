@@ -1,32 +1,7 @@
 <?xml version="1.0"?>
 <robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
   
-  <xacro:property name="chassis_length" value="0.08" />
-  <xacro:property name="chassis_width"  value="0.065" />
-  <xacro:property name="chassis_height" value="0.01" />
-  <xacro:property name="chassis_mass"   value="0.20" />
-  <xacro:property name="chassis_dx"     value="0.04" />
-
-  <xacro:property name="left_wheel_radius"  value="0.03" />
-  <xacro:property name="right_wheel_radius" value="0.03" />
-  <xacro:property name="wheel_width"  value="0.02" />
-  <xacro:property name="wheel_track"  value="0.09" />
-  <xacro:property name="wheel_mass"   value="0.02" />
-  <xacro:property name="steering_servo_no_load_speed" value="2.5" />
-  <xacro:property name="rear_wheel_axle_joint_eff_limit" value="10.0" />
-  <xacro:property name="rear_wheel_axle_joint_vel_limit" value="20.0" />
-  <xacro:property name="rear_wheel_joint_damping"  value="0.05" />
-  <xacro:property name="rear_wheel_joint_friction" value="0.01" />
-
-  <xacro:property name="front_wheel_radius"  value="0.03" />
-  <xacro:property name="front_wheel_L"       value="0.08" />
-  <xacro:property name="front_wheel_width"   value="0.02" />
-  <xacro:property name="steering_servo_stall_torque" value="10.0" />
-  <xacro:property name="steering_servo_no_load_speed" value="2.5" />
-  <xacro:property name="front_wheel_axle_joint_eff_limit" value="10.0" />
-  <xacro:property name="front_wheel_axle_joint_vel_limit" value="20.0" />
-  <xacro:property name="front_wheel_axle_joint_damping"  value="0.00001" />
-  <xacro:property name="front_wheel_axle_joint_friction" value="0.00001" />
+  <!-- see oscar_defaults.urdf.xacro for parameters expected by this model -->
    
   <!-- Common macros -->
   <xacro:include filename="$(find common_robots)/urdf/inertias.urdf.xacro" />

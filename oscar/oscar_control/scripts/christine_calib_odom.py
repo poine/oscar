@@ -2,11 +2,13 @@
 import sys, time
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn import linear_model
 
 import rospy
 
 import two_d_guidance.ros_utils as tdgru, two_d_guidance.plot_utils as tdgpu
 import christine_hwi_ext
+import pdb
 
 class Node:
     def __init__(self):
@@ -70,11 +72,11 @@ def calibrate(filename='/tmp/foo.npz'):
     ds.load(filename)
     if 0:
         ax = plt.subplot(2,1,1)
-        plt.plot(_time, inputs[:,1])
-        tdgpu.decorate(ax, title='throttle', xlab='time', ylab='%')
+        plt.plot(ds.time, ds.inputs[:,1])
+        tdgpu.decorate(ax, title='throttle', xlab='time', ylab='%', ylim=(0, 0.2))
         ax = plt.subplot(2,1,2)
-        plt.plot(_time, mot[:,1])
-        tdgpu.decorate(ax, title='mot_vel', xlab='time', ylab='blahhh')
+        plt.plot(ds.time, ds.mot[:,1])
+        tdgpu.decorate(ax, title='mot_vel', xlab='time', ylab='tick/s')
     if 0:
         ax = plt.subplot(2,1,1)
         plt.plot(ds.time, ds.pos[:,0])
@@ -84,16 +86,43 @@ def calibrate(filename='/tmp/foo.npz'):
         plt.plot(ds.time, ds.yaw)
         tdgpu.decorate(ax, title='yaw', xlab='time', ylab='rad')
     if 1:
-        ax = plt.subplot(2,1,1)
-        plt.plot(ds.lvel_time, np.linalg.norm(ds.lvel, axis=1))
-        tdgpu.decorate(ax, title='lvel', xlab='time', ylab='m/s')
-        ax = plt.subplot(2,1,2)
-        plt.plot(ds.time, ds.inputs[:,1])
-        tdgpu.decorate(ax, title='motor rvel', xlab='time', ylab='tick/s')
-        
+        pass
+    
+def calibrate_lvel(filename='/tmp/foo.npz'):
+    ds = CalibDataset()
+    ds.load(filename)
+
+    Y = np.linalg.norm(ds.lvel, axis=1)
+    Ymask = np.logical_and(np.logical_not(np.isnan(Y)), Y>0.1, Y<2.)
+    Y1 = Y[Ymask].reshape(-1, 1)
+    X = ds.mot[1:,1][Ymask].reshape(-1, 1)
+    ransac = linear_model.RANSACRegressor()
+    #pdb.set_trace()
+    ransac.fit(X, Y1)
+    inlier_mask = ransac.inlier_mask_
+    line_X = np.arange(X.min(), X.max())[:, np.newaxis]
+    line_y_ransac = ransac.predict(line_X)
+
+    ax = plt.subplot(3,1,1)
+    plt.plot(ds.lvel_time, np.linalg.norm(ds.lvel, axis=1), '.')
+    tdgpu.decorate(ax, title='lvel', xlab='time', ylab='m/s', ylim=(0, 2))
+    ax = plt.subplot(3,1,2)
+    plt.plot(ds.time, ds.mot[:,1])
+    tdgpu.decorate(ax, title='motor rvel', xlab='time', ylab='tick/s')
+    ax = plt.subplot(3,1,3)
+    plt.plot(ds.time, ds.mot[:,0])
+    tdgpu.decorate(ax, title='motor pos', xlab='time', ylab='tick')
+    plt.show()
+
+    plt.scatter(X, Y1)
+    plt.scatter(X[inlier_mask], Y1[inlier_mask])
+    plt.plot(line_X, line_y_ransac)
+    tdgpu.decorate(plt.gca(), title='motor regression', xlab='tick/s', ylab='m/s')
     plt.show()
     
-            
+  
+
+    
 def measure(filename='/tmp/foo.npz'):
     bbbl = christine_hwi_ext.BBBLink()
     bbbl.init()
@@ -121,11 +150,11 @@ def plot(filename='/tmp/foo.npz'):
 def main(args):
     #measure()
     #plot()
-    if 0: # send calibration inputs
+    if 1: # send calibration inputs
         rospy.init_node('christine_calibration')
         Node().run()
     else:
-        calibrate()
+        calibrate_lvel()
         
 if __name__ == '__main__':
     main(sys.argv)

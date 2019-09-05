@@ -163,9 +163,8 @@ target_link_libraries(oscar_ackermann_controller
 add_library(christine_ackermann_controller
   src/christine_ackermann_controller.cpp
   src/input_manager.cpp
-  src/odometry.cpp
+  src/christine_odometry.cpp
   src/publisher.cpp
-  src/oac_raw_odom_publisher.cpp
 )
 target_link_libraries(christine_ackermann_controller
   ${catkin_LIBRARIES} roboticscape 

@@ -271,7 +271,7 @@ static void send() {
   struct ChristineHardwareOutputMsg hom;
   hom.data.bat_voltage = rc_adc_batt();
 #ifdef USE_BBB_ENCODERS
-  hom.data.mot_pos = _main.motor_vel;
+  hom.data.mot_pos = _main.motor_pos;
   hom.data.mot_vel = _main.motor_vel;
 #else
   hom.data.mot_pos = _main.pos[0];
