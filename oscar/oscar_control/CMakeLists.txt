@@ -216,6 +216,16 @@ target_link_libraries(christine_rc_node
 )
 
 
+add_executable(christine_rc_node2
+  src/christine_rc2.cpp
+)
+target_include_directories(christine_rc_node2 PRIVATE /home/poine/work/roverboard/roverboard_odrive/include/)
+target_link_libraries(christine_rc_node2
+  ${catkin_LIBRARIES} roboticscape roverboard_odrive_can ${Boost_LIBRARIES}
+)
+
+
+
 ###
 ### Runs on the BBB - Communicates with ROS on Jetson
 ###
@@ -227,8 +237,8 @@ add_executable(christine_bbb_plug
   src/christine_remote_bbb_protocol.cpp
   src/christine_bbb_plug.cpp
 )
-target_include_directories(christine_bbb_plug PRIVATE ${GLIB_INCLUDE_DIRS})
-target_link_libraries(christine_bbb_plug ${GLIB_LDFLAGS} roboticscape)
+target_include_directories(christine_bbb_plug PRIVATE ${GLIB_INCLUDE_DIRS} /home/poine/work/roverboard/roverboard_odrive/include/)
+target_link_libraries(christine_bbb_plug ${GLIB_LDFLAGS} roboticscape roverboard_odrive_can ${Boost_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
