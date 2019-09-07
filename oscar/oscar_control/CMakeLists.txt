@@ -216,13 +216,13 @@ target_link_libraries(christine_rc_node
 )
 
 
-add_executable(christine_rc_node2
-  src/christine_rc2.cpp
-)
-target_include_directories(christine_rc_node2 PRIVATE /home/poine/work/roverboard/roverboard_odrive/include/)
-target_link_libraries(christine_rc_node2
-  ${catkin_LIBRARIES} roboticscape roverboard_odrive_can ${Boost_LIBRARIES}
-)
+#add_executable(christine_rc_node2
+#  src/christine_rc2.cpp
+#)
+#target_include_directories(christine_rc_node2 PRIVATE /home/poine/work/roverboard/roverboard_odrive/include/)
+#target_link_libraries(christine_rc_node2
+#  ${catkin_LIBRARIES} roboticscape roverboard_odrive_can ${Boost_LIBRARIES}
+#)
 
 
 
