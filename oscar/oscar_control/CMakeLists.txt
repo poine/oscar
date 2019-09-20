@@ -125,7 +125,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES oscar_control
+  LIBRARIES oscar_ackermann_controller christine_ackermann_controller
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
    CATKIN_DEPENDS message_runtime
@@ -155,7 +155,7 @@ add_library(oscar_ackermann_controller
   src/publisher.cpp
   src/oac_raw_odom_publisher.cpp
 )
-
+add_dependencies(oscar_ackermann_controller ${catkin_EXPORTED_TARGETS})
 target_link_libraries(oscar_ackermann_controller
   ${catkin_LIBRARIES} roboticscape 
   )
@@ -166,6 +166,7 @@ add_library(christine_ackermann_controller
   src/christine_odometry.cpp
   src/publisher.cpp
 )
+add_dependencies(christine_ackermann_controller ${catkin_EXPORTED_TARGETS})
 target_link_libraries(christine_ackermann_controller
   ${catkin_LIBRARIES} roboticscape 
   )
