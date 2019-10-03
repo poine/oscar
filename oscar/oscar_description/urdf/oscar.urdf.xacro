@@ -86,5 +86,10 @@
       <origin xyz="${cam_cl_to_ref_xyz}" rpy="${cam_cl_to_ref_rpy}" />
     </xacro:cs_camera_eachine>
   </xacro:if>
+  <xacro:if value="${use_camera2}">
+    <xacro:cs_camera_eachine cam_name="${cam2_name}" origin_ref_frame="base_link_footprint">
+      <origin xyz="${cam2_cl_to_ref_xyz}" rpy="${cam2_cl_to_ref_rpy}" />
+    </xacro:cs_camera_eachine>
+  </xacro:if>
   
 </robot>

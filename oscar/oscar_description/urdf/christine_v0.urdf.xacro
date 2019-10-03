@@ -30,7 +30,13 @@
   <!-- <xacro:property name="cam_cl_to_ref_rpy" value="-4.83558341e-04   5.51295376e-01   4.91191358e-02" /> -->
   <xacro:property name="cam_cl_to_ref_xyz" value=" 0.21862012 -0.00555091  0.16551083" />
   <xacro:property name="cam_cl_to_ref_rpy" value="-0.0208105   0.51668558  0.03265788" />
-  
+
+  <!-- Camera horizon -->
+  <xacro:property name="use_camera2" value="true" />
+  <xacro:property name="cam2_name" value="camera_horiz_front" />
+  <xacro:property name="cam2_cl_to_ref_xyz" value="0.06483087  0.00032532  0.22" />
+  <xacro:property name="cam2_cl_to_ref_rpy" value="0.0077082   -0.1  0.02633946" />
+
 
   <xacro:property name="use_eachine_camera" value="false"/>
   
