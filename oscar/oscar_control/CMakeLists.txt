@@ -6,7 +6,7 @@ add_compile_options(-std=c++11)
 # remove warnings on arm (beaglebone)
 # https://stackoverflow.com/questions/48149323/what-does-the-the-gcc-warning-project-parameter-passing-for-x-changed-in-gcc-7
 add_compile_options(-faligned-new -Wno-psabi)
-
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   ackermann_msgs
   message_generation
+  genmsg
   )
 
 find_package(Boost REQUIRED
@@ -126,9 +127,8 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES oscar_ackermann_controller christine_ackermann_controller
-#  CATKIN_DEPENDS other_catkin_pkg
+   CATKIN_DEPENDS roscpp rospy message_runtime
 #  DEPENDS system_lib
-   CATKIN_DEPENDS message_runtime
 )
 
 ###########
@@ -144,10 +144,6 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/oscar_control.cpp
-# )
-
 add_library(oscar_ackermann_controller
   src/oscar_ackermann_controller.cpp
   src/input_manager.cpp
@@ -155,7 +151,7 @@ add_library(oscar_ackermann_controller
   src/publisher.cpp
   src/oac_raw_odom_publisher.cpp
 )
-add_dependencies(oscar_ackermann_controller ${catkin_EXPORTED_TARGETS})
+add_dependencies(oscar_ackermann_controller ${catkin_EXPORTED_TARGETS} oscar_control_generate_messages_cpp)
 target_link_libraries(oscar_ackermann_controller
   ${catkin_LIBRARIES} roboticscape 
   )
@@ -309,8 +305,6 @@ target_link_libraries(christine_serial_hwi_node
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES
   oscar_ackerman_controller_plugin.xml
-  #   # myfile1
-  #   # myfile2
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
