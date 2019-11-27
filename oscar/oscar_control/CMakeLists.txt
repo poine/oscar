@@ -235,7 +235,7 @@ add_executable(christine_bbb_plug
   src/christine_bbb_plug.cpp
 )
 target_include_directories(christine_bbb_plug PRIVATE ${GLIB_INCLUDE_DIRS} /home/poine/work/roverboard/roverboard_odrive/include/)
-target_link_libraries(christine_bbb_plug ${GLIB_LDFLAGS} roboticscape roverboard_odrive_can ${Boost_LIBRARIES})
+target_link_libraries(christine_bbb_plug ${GLIB_LDFLAGS} roboticscape roverboard_odrive_can ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
