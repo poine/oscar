@@ -162,7 +162,7 @@ add_library(christine_ackermann_controller
   src/christine_odometry.cpp
   src/publisher.cpp
 )
-add_dependencies(christine_ackermann_controller ${catkin_EXPORTED_TARGETS})
+add_dependencies(christine_ackermann_controller ${catkin_EXPORTED_TARGETS} oscar_control_generate_messages_cpp)
 target_link_libraries(christine_ackermann_controller
   ${catkin_LIBRARIES} roboticscape 
   )
